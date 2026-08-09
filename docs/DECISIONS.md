@@ -25,6 +25,16 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0010 — Akses tabel konfigurasi hanya via server (service-role) + RLS deny
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Tabel konfigurasi/operasional (instansi, unit_kerja, pola_hari_kerja, jam_kerja_sesi, dst) di-enable RLS tanpa policy (default deny). Semua baca/tulis admin lewat **server actions memakai service-role** (`createAdminClient`), digating `requireAdmin()`. Client anon tidak pernah menyentuh tabel ini langsung.
+- **Alasan:** anon key ada di bundle publik; tanpa RLS, tabel bisa ditulis siapa saja. Pola server-action lebih sederhana & aman daripada menulis policy granular per-peran sekarang.
+
+### ADR-0009 — Peran ditentukan oleh tabel `admin_unit_kerja`
+- **Tanggal:** 2026-08-10
+- **Keputusan:** User = admin jika punya baris di `admin_unit_kerja` (`super_admin` atau `admin_unit`). `super_admin` tetap butuh 1 `unit_kerja` (skema NOT NULL) sebagai unit rumah, tapi lihat semua via RLS/EXISTS. User admin pertama dibuat via script service-role (auth user + pegawai + admin_unit_kerja).
+- **Alasan:** sederhana, sejalan RLS blueprint §11.1; menghindari tabel peran terpisah.
+
 ### ADR-0008 — PWA di-handle manual (service worker sendiri)
 - **Tanggal:** 2026-08-10
 - **Keputusan:** Karena `next-pwa` ditunda (ADR-0006), buat `public/sw.js` sendiri (network-first navigasi, cache-first aset) + registrasi produksi-saja via `sw-register.tsx`. Ikon PWA digenerate dengan `sharp` dari glyph QRensi.

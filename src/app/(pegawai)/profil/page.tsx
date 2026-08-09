@@ -38,12 +38,14 @@ export default function ProfilPage() {
             <ChevronRight className="size-5 text-muted" />
           </button>
         ))}
-        <button className="pressable flex w-full items-center gap-3 rounded-2xl bg-danger-soft p-4 text-left text-danger">
-          <div className="grid size-10 place-items-center rounded-xl bg-danger/10">
-            <LogOut className="size-5" />
-          </div>
-          <span className="flex-1 font-semibold">Keluar</span>
-        </button>
+        <form action="/logout" method="post">
+          <button className="pressable flex w-full items-center gap-3 rounded-2xl bg-danger-soft p-4 text-left text-danger">
+            <div className="grid size-10 place-items-center rounded-xl bg-danger/10">
+              <LogOut className="size-5" />
+            </div>
+            <span className="flex-1 font-semibold">Keluar</span>
+          </button>
+        </form>
       </div>
       <p className="text-center text-xs text-muted">Login &amp; enrollment aktif setelah wiring Supabase Auth.</p>
     </div>

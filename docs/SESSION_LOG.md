@@ -39,3 +39,22 @@
 **Blocker:** `supabase/APPLY_ALL.sql` belum dijalankan user → memblokir auth & CRUD.
 
 **Next:** gen types → auth/login → admin CRUD jam-kerja & pola → data nyata di beranda.
+
+---
+
+## Sesi #3 — 2026-08-10
+**Tujuan:** Tuntaskan Fase 0 — auth, user admin, modul setting (pola & jam kerja).
+
+**Yang dikerjakan:**
+- User admin dibuat via script service-role: auth user `bungluyo@gmail.com` (password sementara `Qrensi!4803fd2e`) + `unit_kerja` default "Sekretariat Daerah" + baris `pegawai` + `admin_unit_kerja` super_admin.
+- **Auth:** `lib/auth.ts` (getSesiUser/requireAdmin/requireUser), `/login` (client), `/logout` (route), guard di layout admin & pegawai. Diverifikasi via API: login OK → peran super_admin.
+- **Admin CRUD** (server actions service-role, guard admin): Pola Hari Kerja (list/tambah/hapus), Jam Kerja Sesi (editor jam per pola×hari×sesi + toggle aktif). Dashboard mini.
+- Beranda greeting pakai nama user login (server→client split).
+- **RLS hardening** `0004` ditulis (ADR-0010) — perlu user run.
+- Build hijau; login+peran terverifikasi lewat API (browser pane tersembunyi jadi klik UI dilewati).
+
+**Keputusan baru:** ADR-0009 (peran via admin_unit_kerja), ADR-0010 (akses konfigurasi via server + RLS deny).
+
+**Blocker:** —. Catatan: user perlu jalankan `0004_rls_hardening.sql` sebelum go-live; ganti password admin setelah login pertama.
+
+**Next (Fase 1):** modul Pegawai → Kiosk (device_secret, qr/generate, Realtime) → presensi/verify (klaim atomik) → data presensi nyata.
