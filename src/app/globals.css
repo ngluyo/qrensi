@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* ============================================================
+   QRensi Design Tokens — "Laut" (identitas maritim Kotabaru)
+   Lihat docs/DESIGN.md. Warna OKLCH, light + dark.
+   ============================================================ */
+
+:root {
+  /* Neutral "ink" (cool) */
+  --bg: oklch(0.985 0.004 240);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.975 0.006 240);
+  --border: oklch(0.922 0.008 240);
+  --text: oklch(0.23 0.02 250);
+  --muted: oklch(0.55 0.02 250);
+
+  /* Brand — ocean blue */
+  --brand: oklch(0.45 0.12 236);
+  --brand-strong: oklch(0.38 0.13 240);
+  --brand-fg: oklch(0.99 0 0);
+  --brand-soft: oklch(0.95 0.03 236);
+
+  /* Accent — teal/cyan */
+  --accent: oklch(0.72 0.13 200);
+  --accent-fg: oklch(0.2 0.03 240);
+
+  /* Semantik status */
+  --success: oklch(0.62 0.15 155);
+  --success-soft: oklch(0.95 0.05 155);
+  --warning: oklch(0.75 0.15 75);
+  --warning-soft: oklch(0.96 0.06 80);
+  --info: oklch(0.6 0.13 245);
+  --info-soft: oklch(0.95 0.04 245);
+  --danger: oklch(0.62 0.2 20);
+  --danger-soft: oklch(0.95 0.05 20);
+
+  /* Bentuk & elevasi */
+  --radius: 1.25rem;
+  --radius-sm: 0.75rem;
+  --radius-lg: 1.75rem;
+  --shadow-sm: 0 1px 2px oklch(0.4 0.05 250 / 0.06), 0 1px 3px oklch(0.4 0.05 250 / 0.05);
+  --shadow-md: 0 4px 12px oklch(0.4 0.05 250 / 0.08), 0 2px 6px oklch(0.4 0.05 250 / 0.05);
+  --shadow-lg: 0 12px 32px oklch(0.35 0.06 250 / 0.14), 0 6px 12px oklch(0.35 0.06 250 / 0.08);
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: oklch(0.19 0.02 250);
+    --surface: oklch(0.23 0.02 250);
+    --surface-2: oklch(0.27 0.022 250);
+    --border: oklch(0.32 0.02 250);
+    --text: oklch(0.96 0.006 240);
+    --muted: oklch(0.68 0.02 245);
+
+    --brand: oklch(0.62 0.13 225);
+    --brand-strong: oklch(0.7 0.13 220);
+    --brand-fg: oklch(0.15 0.02 250);
+    --brand-soft: oklch(0.3 0.05 230);
+
+    --accent: oklch(0.72 0.13 200);
+    --accent-fg: oklch(0.16 0.02 240);
+
+    --success: oklch(0.7 0.15 155);
+    --success-soft: oklch(0.32 0.06 155);
+    --warning: oklch(0.8 0.14 78);
+    --warning-soft: oklch(0.34 0.06 80);
+    --info: oklch(0.68 0.12 235);
+    --info-soft: oklch(0.32 0.05 240);
+    --danger: oklch(0.68 0.18 22);
+    --danger-soft: oklch(0.33 0.07 22);
+
+    --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+    --shadow-md: 0 4px 14px oklch(0 0 0 / 0.4);
+    --shadow-lg: 0 16px 40px oklch(0 0 0 / 0.5);
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --radius-sm: var(--radius-sm);
+  --radius-DEFAULT: var(--radius);
+  --radius-lg: var(--radius-lg);
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-spring: var(--ease-spring);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* cegah overscroll bounce yang bocorkan latar putih */
+  overscroll-behavior-y: none;
+}
+
+/* Angka rata (jam, rekap) */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Sembunyikan scrollbar untuk area scroll-x native */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Ripple/tekan native */
+.pressable { transition: transform 0.12s var(--ease-spring); touch-action: manipulation; }
+.pressable:active { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
