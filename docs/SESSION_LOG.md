@@ -134,3 +134,19 @@
 **Blocker:** kamera enroll/verify hanya bisa diuji di HP/HTTPS (deploy). Liveness belum ada.
 
 **Next:** deploy Vercel -> uji kamera enroll+verify di HP -> liveness challenge -> audit log UI.
+
+---
+
+## Sesi #8 — 2026-08-10
+**Tujuan:** Liveness challenge (Fase 2) + fix cron Vercel Hobby.
+
+**Yang dikerjakan:**
+- Fix deploy: vercel.json cron jadi harian `30 15 * * *` (23:30 WITA) — batas Hobby 1x/hari (ADR-0015).
+- Liveness aktif di /absensi/wajah: challenge kedip 2x -> menoleh (EAR & yaw dari landmark face-api) sebelum capture descriptor. Timeout per langkah 12s, retry. lib/face.ts +getLandmarkMetrics.
+- Build hijau. (Kamera liveness hanya bisa diuji di HP/HTTPS.)
+
+**Keputusan baru:** ADR-0015 (cron harian).
+
+**Blocker:** deploy Vercel oleh user; uji kamera end-to-end setelah live.
+
+**Next:** setelah deploy & uji -> Audit Log admin -> Fase 3 (ekspor Sheets/Drive) -> notifikasi Web Push.

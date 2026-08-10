@@ -3,18 +3,47 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ScanFace, Loader2, Check, X } from "lucide-react";
-import { loadFaceModels, getDescriptor } from "@/lib/face";
+import { ArrowLeft, ScanFace, Loader2, Check, X, Eye, RefreshCw } from "lucide-react";
+import { loadFaceModels, getDescriptor, getLandmarkMetrics } from "@/lib/face";
 
 const FACE_LS = "qrensi_face_token";
-type Phase = "init" | "ready" | "verifying" | "ok" | "gagal" | "error";
+
+// Ambang liveness
+const EAR_CLOSED = 0.21;
+const EAR_OPEN = 0.27;
+const YAW_TURN = 0.16;
+const BLINK_TARGET = 2;
+const STEP_TIMEOUT_MS = 12000;
+
+type Phase = "init" | "challenge" | "verifying" | "ok" | "gagal" | "error";
+type Step = "kedip" | "toleh";
 
 export default function WajahPage() {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const loopRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const [phase, setPhase] = useState<Phase>("init");
+  const [step, setStep] = useState<Step>("kedip");
+  const [blinks, setBlinks] = useState(0);
   const [msg, setMsg] = useState("Memuat model wajah…");
+
+  // state mutable untuk loop
+  const eyesClosedRef = useRef(false);
+  const blinkRef = useRef(0);
+  const stepRef = useRef<Step>("kedip");
+  const stepStartRef = useRef(0);
+  const busyRef = useRef(false);
+
+  function stopLoop() {
+    if (loopRef.current) clearInterval(loopRef.current);
+    loopRef.current = null;
+  }
+  function stopAll() {
+    stopLoop();
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -22,17 +51,13 @@ export default function WajahPage() {
       try {
         await loadFaceModels();
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
-        }
+        if (cancelled) return stream.getTracks().forEach((t) => t.stop());
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
         }
-        setPhase("ready");
-        setMsg("");
+        startChallenge();
       } catch {
         setPhase("error");
         setMsg("Kamera/model gagal dimuat. Izinkan akses kamera.");
@@ -40,23 +65,68 @@ export default function WajahPage() {
     })();
     return () => {
       cancelled = true;
-      streamRef.current?.getTracks().forEach((t) => t.stop());
+      stopAll();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function goScan() {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    router.push("/absensi/scan");
+  function startChallenge() {
+    setPhase("challenge");
+    setMsg("");
+    setStep("kedip");
+    setBlinks(0);
+    eyesClosedRef.current = false;
+    blinkRef.current = 0;
+    stepRef.current = "kedip";
+    stepStartRef.current = Date.now();
+    stopLoop();
+    loopRef.current = setInterval(tick, 160);
   }
 
-  async function verify() {
-    if (!videoRef.current) return;
+  async function tick() {
+    if (busyRef.current || !videoRef.current) return;
+    busyRef.current = true;
+    try {
+      // timeout per langkah
+      if (Date.now() - stepStartRef.current > STEP_TIMEOUT_MS) {
+        stopLoop();
+        setPhase("gagal");
+        setMsg("Gerakan tidak terdeteksi. Coba lagi dengan cahaya cukup.");
+        return;
+      }
+      const m = await getLandmarkMetrics(videoRef.current);
+      if (!m) return;
+
+      if (stepRef.current === "kedip") {
+        if (m.ear < EAR_CLOSED) eyesClosedRef.current = true;
+        else if (m.ear > EAR_OPEN && eyesClosedRef.current) {
+          eyesClosedRef.current = false;
+          blinkRef.current += 1;
+          setBlinks(blinkRef.current);
+        }
+        if (blinkRef.current >= BLINK_TARGET) {
+          stepRef.current = "toleh";
+          stepStartRef.current = Date.now();
+          setStep("toleh");
+        }
+      } else if (stepRef.current === "toleh") {
+        if (Math.abs(m.yaw) > YAW_TURN) {
+          stopLoop();
+          await captureAndVerify();
+        }
+      }
+    } finally {
+      busyRef.current = false;
+    }
+  }
+
+  async function captureAndVerify() {
     setPhase("verifying");
     setMsg("Memverifikasi wajah…");
-    const desc = await getDescriptor(videoRef.current);
+    const desc = videoRef.current ? await getDescriptor(videoRef.current) : null;
     if (!desc) {
-      setPhase("ready");
-      setMsg("Wajah tidak terdeteksi. Posisikan wajah di tengah.");
+      setPhase("gagal");
+      setMsg("Wajah tidak terdeteksi saat verifikasi. Coba lagi.");
       return;
     }
     try {
@@ -71,16 +141,21 @@ export default function WajahPage() {
         navigator.vibrate?.([20, 40, 20]);
         setPhase("ok");
         setMsg("Wajah cocok. Lanjut memindai QR…");
-        setTimeout(goScan, 700);
+        setTimeout(() => {
+          stopAll();
+          router.push("/absensi/scan");
+        }, 700);
       } else if (data.error === "belum_enroll") {
-        // Belum di-enroll: lanjut tanpa token (gating dilewati server).
         setPhase("ok");
         setMsg("Wajah belum terdaftar — lanjut ke scan.");
-        setTimeout(goScan, 700);
+        setTimeout(() => {
+          stopAll();
+          router.push("/absensi/scan");
+        }, 700);
       } else {
         navigator.vibrate?.(80);
         setPhase("gagal");
-        setMsg(data.error === "wajah_tidak_cocok" ? "Wajah tidak cocok dengan data. Coba lagi." : "Verifikasi gagal. Coba lagi.");
+        setMsg(data.error === "wajah_tidak_cocok" ? "Wajah tidak cocok dengan data terdaftar." : "Verifikasi gagal. Coba lagi.");
       }
     } catch {
       setPhase("gagal");
@@ -88,15 +163,18 @@ export default function WajahPage() {
     }
   }
 
+  const instruksi =
+    step === "kedip" ? `Kedipkan mata (${blinks}/${BLINK_TARGET})` : "Tolehkan kepala ke samping";
+
   return (
     <div className="space-y-5">
       <header className="flex items-center gap-3">
-        <Link href="/beranda" className="pressable grid size-9 place-items-center rounded-xl bg-surface shadow-[var(--shadow-sm)]">
+        <Link href="/beranda" onClick={stopAll} className="pressable grid size-9 place-items-center rounded-xl bg-surface shadow-[var(--shadow-sm)]">
           <ArrowLeft className="size-5" />
         </Link>
         <div>
           <h1 className="text-xl font-extrabold tracking-tight">Verifikasi Wajah</h1>
-          <p className="text-xs text-muted">Langkah 1 dari 2 · pastikan cahaya cukup.</p>
+          <p className="text-xs text-muted">Langkah 1 dari 2 · deteksi wajah asli.</p>
         </div>
       </header>
 
@@ -109,9 +187,16 @@ export default function WajahPage() {
             } shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]`}
           />
         </div>
+
         {(phase === "init" || phase === "verifying") && (
           <div className="absolute inset-0 grid place-items-center bg-black/50 text-white">
             <Loader2 className="size-8 animate-spin" />
+          </div>
+        )}
+        {phase === "challenge" && (
+          <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-black/70 to-transparent p-4 text-white">
+            <Eye className="size-5" />
+            <span className="font-bold">{instruksi}</span>
           </div>
         )}
         {phase === "ok" && (
@@ -130,15 +215,25 @@ export default function WajahPage() {
         )}
       </div>
 
-      {msg && <p className={`text-center text-sm ${phase === "error" || phase === "gagal" ? "text-danger" : "text-muted"}`}>{msg}</p>}
+      {msg && (
+        <p className={`text-center text-sm ${phase === "error" || phase === "gagal" ? "text-danger" : "text-muted"}`}>
+          {msg}
+        </p>
+      )}
 
-      <button
-        onClick={verify}
-        disabled={phase === "init" || phase === "verifying" || phase === "ok"}
-        className="pressable flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-bold text-brand-fg disabled:opacity-50"
-      >
-        <ScanFace className="size-5" /> {phase === "gagal" ? "Coba lagi" : "Verifikasi wajah"}
-      </button>
+      {(phase === "gagal" || phase === "error") && (
+        <button
+          onClick={() => (phase === "error" ? window.location.reload() : startChallenge())}
+          className="pressable flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-bold text-brand-fg"
+        >
+          <RefreshCw className="size-5" /> Coba lagi
+        </button>
+      )}
+      {phase === "challenge" && (
+        <div className="flex items-center justify-center gap-2 text-xs text-muted">
+          <ScanFace className="size-4" /> Ikuti instruksi di layar untuk membuktikan wajah asli
+        </div>
+      )}
     </div>
   );
 }

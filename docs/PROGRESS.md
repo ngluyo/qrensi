@@ -69,7 +69,7 @@
 - ☑ `POST /api/face/enroll` (admin) + halaman **/admin/enrollment** (kamera → descriptor → simpan)
 - ☑ `POST /api/face/verify` (server-side decision) → `face_session_token` — teruji: pgvector roundtrip (self-dist 0), 401 tanpa login
 - ☑ Langkah **/absensi/wajah** sebelum scan; scan kirim face token; `presensi/verify` gating bila enrolled
-- ☐ Liveness challenge dasar (kedip/menoleh) — follow-up
+- ☑ Liveness challenge dasar: kedip 2× + menoleh (EAR/yaw dari landmark) sebelum capture descriptor
 - ☐ Modul Audit Log admin (dari presensi_verifikasi_log)
 - ☐ Notifikasi anomali ke admin
 ## Fase 3 — Google & Laporan — ☐ belum mulai
