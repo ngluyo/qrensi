@@ -63,6 +63,12 @@
 - ☑ Editor **aturan potongan** admin (list per jenis + tambah/hapus)
 - ☐ Deploy Vercel (env + uji kamera HP) — **berikutnya**
 - ☐ Face verification (Fase 2) disisipkan sebelum scan
+## Akun & Peran
+- ☑ Provisioning akun pegawai oleh admin (buat akun + password sementara, tampil sekali) — **teruji: create→login OK**
+- ☑ 3 role: super_admin / admin_unit / pegawai (+ kiosk = device). Detail di ARCHITECTURE.
+- ☐ **Utang teknis:** batasi `admin_unit` ke unitnya (kini setara super_admin) — perketat sebelum multi-unit
+- ☐ Deploy: **live** di Vercel (commit f32e828) ✅
+
 ## Fase 2 — Biometrik — ◐ (face verification jalan)
 - ☑ Model face-api di `public/models` (tiny + landmark68 + recognition)
 - ☑ `lib/face.ts` (client descriptor), `lib/face-token.ts` (HMAC 90s), `lib/face-embedding.ts` (euclidean, threshold 0.55, pgvector helpers)

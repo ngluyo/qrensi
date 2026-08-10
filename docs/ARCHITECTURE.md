@@ -80,6 +80,15 @@ supabase/migrations/
 public/ models | icons | manifest.json
 ```
 
+## 4b. Peran & Akses
+
+- **Super Admin** (`admin_unit_kerja.peran='super_admin'`): akses penuh semua instansi/unit, konfigurasi, pegawai, kiosk, enrollment, audit, ekspor.
+- **Admin Unit** (`admin_unit_kerja.peran='admin_unit'`): panel admin (kelola pegawai/jam/kiosk/potongan/enrollment). *Utang teknis:* saat ini belum dibatasi ke unitnya (setara super_admin; action per-instansi).
+- **Pegawai** (baris `pegawai` bertaut `auth_user_id`, tanpa baris admin): hanya data sendiri (beranda/absensi/riwayat/profil), dijaga RLS.
+- **Kiosk**: bukan akun — perangkat ber-`device_secret` + binding; hanya minta token QR.
+
+**Provisioning:** admin buat data pegawai → "Buat akun login" (`auth.admin.createUser`, email atau `<nip>@qrensi.local`) → password sementara tampil sekali. Tidak ada self-registration (blueprint).
+
 ## 5. Keamanan
 
 - **RLS:** pegawai hanya lihat datanya; `qr_token` default-deny (hanya server service_role). Admin unit lihat pegawai unitnya.

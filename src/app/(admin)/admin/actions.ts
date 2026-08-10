@@ -1,5 +1,6 @@
 "use server";
 
+import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
@@ -127,6 +128,52 @@ export async function deletePegawai(formData: FormData) {
   const db = createAdminClient();
   await db.from("pegawai").delete().eq("id", id);
   revalidatePath("/admin/pegawai");
+}
+
+// ---------- Akun login pegawai (admin buat + password sementara) ----------
+
+export interface AkunState {
+  ok: boolean;
+  message?: string;
+  email?: string;
+  password?: string; // ditampilkan SEKALI
+}
+
+export async function buatAkunPegawai(
+  _prev: AkunState,
+  formData: FormData,
+): Promise<AkunState> {
+  await requireAdmin();
+  const pegawaiId = String(formData.get("pegawai_id") || "");
+  let email = String(formData.get("email") || "").trim().toLowerCase();
+  if (!pegawaiId) return { ok: false, message: "Pilih pegawai dulu." };
+
+  const db = createAdminClient();
+  const { data: peg } = await db
+    .from("pegawai")
+    .select("id, nama, nip, auth_user_id")
+    .eq("id", pegawaiId)
+    .maybeSingle();
+  if (!peg) return { ok: false, message: "Pegawai tidak ditemukan." };
+  if (peg.auth_user_id) return { ok: false, message: "Pegawai ini sudah punya akun." };
+
+  // Tanpa email → pakai NIP sebagai identitas login: <nip>@qrensi.local
+  if (!email) {
+    if (!peg.nip) return { ok: false, message: "Isi email, atau lengkapi NIP pegawai lebih dulu." };
+    email = `${String(peg.nip).toLowerCase().replace(/\s+/g, "")}@qrensi.local`;
+  }
+
+  const password = "Qrensi!" + randomBytes(4).toString("hex");
+  const { data: created, error } = await db.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
+  if (error) return { ok: false, message: error.message };
+
+  await db.from("pegawai").update({ auth_user_id: created.user.id }).eq("id", peg.id);
+  revalidatePath("/admin/pegawai");
+  return { ok: true, email, password };
 }
 
 // ---------- Pengaturan Potongan ----------

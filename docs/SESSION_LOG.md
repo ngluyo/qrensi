@@ -150,3 +150,21 @@
 **Blocker:** deploy Vercel oleh user; uji kamera end-to-end setelah live.
 
 **Next:** setelah deploy & uji -> Audit Log admin -> Fase 3 (ekspor Sheets/Drive) -> notifikasi Web Push.
+
+---
+
+## Sesi #9 — 2026-08-10
+**Tujuan:** Provisioning akun login pegawai (admin buat + password sementara) + penjelasan role.
+
+**Yang dikerjakan:**
+- Deploy Vercel sukses (commit f32e828) dikonfirmasi user.
+- Klarifikasi model akun (admin-provisioned, no self-register — sesuai blueprint) & 3 role (super_admin/admin_unit/pegawai) + kiosk device. Ditulis ke ARCHITECTURE 4b.
+- Server action buatAkunPegawai: auth.admin.createUser (email atau <nip>@qrensi.local) + link auth_user_id + password sementara tampil sekali. Pegawai page jadi client manager (status akun + kartu buat akun + banner kredensial).
+- Teruji: create pegawai -> buat akun -> login OK -> peran kosong (pegawai biasa), lalu cleanup.
+- Build hijau.
+
+**Keputusan baru:** ADR-0016 (provisioning akun admin + utang teknis admin_unit scoping).
+
+**Blocker:** —
+
+**Next:** Audit Log admin -> Fase 3 (ekspor Sheets/Drive) -> Web Push -> perketat admin_unit scoping.

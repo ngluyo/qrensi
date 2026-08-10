@@ -25,6 +25,12 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0016 — Provisioning akun pegawai oleh admin (password sementara)
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Tidak ada self-registration (sesuai blueprint). Admin menambah data pegawai, lalu "Buat akun login" → `auth.admin.createUser` (email atau `<nip>@qrensi.local` bila tanpa email) + **password sementara ditampilkan sekali** untuk diserahkan; `pegawai.auth_user_id` ditaut. Pegawai ganti password setelah login pertama.
+- **Alasan:** Data ASN otoritatif dari BKPSDM & enrollment wajah harus didampingi HR; kontrol penuh di admin, permukaan risiko minimal.
+- **Utang teknis:** peran `admin_unit` saat ini praktis setara `super_admin` (semua halaman admin terbuka; action dibatasi per-instansi, bukan per-unit). Perlu diperketat sebelum multi-unit/instansi.
+
 ### ADR-0015 — Cron tutup-sesi jadi 1×/hari (batas Vercel Hobby)
 - **Tanggal:** 2026-08-10
 - **Keputusan:** Vercel Hobby membatasi cron maksimal 1×/hari, jadi `vercel.json` diubah dari `*/5` ke `30 15 * * *` (15:30 UTC = **23:30 WITA**) — setelah sesi pulang tutup, masih di tanggal sama. `tutup-sesi-harian` idempoten & mengevaluasi semua sesi yang sudah lewat, jadi 1 run malam cukup menandai `tidak_hadir`/`tidak_ada_di_kantor` seharian.
