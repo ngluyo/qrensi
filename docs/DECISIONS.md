@@ -25,6 +25,11 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0015 — Cron tutup-sesi jadi 1×/hari (batas Vercel Hobby)
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Vercel Hobby membatasi cron maksimal 1×/hari, jadi `vercel.json` diubah dari `*/5` ke `30 15 * * *` (15:30 UTC = **23:30 WITA**) — setelah sesi pulang tutup, masih di tanggal sama. `tutup-sesi-harian` idempoten & mengevaluasi semua sesi yang sudah lewat, jadi 1 run malam cukup menandai `tidak_hadir`/`tidak_ada_di_kantor` seharian.
+- **Alasan:** Absen nyata pegawai tercatat real-time saat scan; cron hanya finalisasi yang tidak hadir → tak perlu sering. Untuk finalisasi lebih real-time (opsional): pakai cron eksternal gratis (cron-job.org) memanggil endpoint dgn header CRON_SECRET, atau upgrade Vercel Pro.
+
 ### ADR-0014 — Face verification: descriptor di client, keputusan di server, gating bertahap
 - **Tanggal:** 2026-08-10
 - **Keputusan:** Model face-api (@vladmandic) di `public/models` (tiny_face_detector + landmark68 + recognition). HP hitung descriptor 128-d; `POST /api/face/verify` menghitung euclidean distance vs embedding tersimpan (threshold 0.55) & menerbitkan `face_session_token` (HMAC, 90s, namespace "face:"+QR_SIGNING_SECRET). Embedding disimpan pgvector `vector(128)` (literal `[...]`), dibaca & dibandingkan di JS. `presensi/verify` mewajibkan face token **hanya bila pegawai sudah enroll** (rollout bertahap; belum enroll = dilewati). Enrollment oleh admin (`/admin/enrollment`).
