@@ -58,3 +58,24 @@
 **Blocker:** —. Catatan: user perlu jalankan `0004_rls_hardening.sql` sebelum go-live; ganti password admin setelah login pertama.
 
 **Next (Fase 1):** modul Pegawai → Kiosk (device_secret, qr/generate, Realtime) → presensi/verify (klaim atomik) → data presensi nyata.
+
+---
+
+## Sesi #4 — 2026-08-10
+**Tujuan:** Fase 1 — vertical slice presensi QR (kiosk → HP scan).
+
+**Yang dikerjakan:**
+- Modul **Pegawai** admin (CRUD + assign unit/pola, tambah unit kerja) — server actions service-role.
+- Modul **Kiosk**: registrasi + `device_secret` (tampil sekali via useActionState), reset/aktif/hapus.
+- Lib `sesi.ts`: waktu WITA (date-fns-tz), resolusi sesi terbuka per pola / instansi, upsert sesi_absensi_harian.
+- Endpoint `POST /api/qr/generate` (auth device_secret, rotasi 60s + instan-saat-klaim) — **teruji live**.
+- Endpoint `POST /api/presensi/verify` (verify HMAC → klaim atomik → resolusi sesi per-pegawai → simpan presensi + log).
+- Halaman **kiosk/tampilan** (polling + render QR) & **absensi/scan** (html5-qrcode → verify → hasil).
+- Integration test node: generate open=true, **klaim atomik 1-dari-2**, rotasi token setelah klaim. Semua lolos.
+- Build hijau.
+
+**Keputusan baru:** ADR-0011 (token=bukti kehadiran, sesi per-pegawai), ADR-0012 (kiosk polling, bukan Realtime).
+
+**Blocker:** — (kamera hanya bisa diuji di HP fisik/HTTPS; logika inti sudah diverifikasi via API/DB).
+
+**Next:** cron tutup sesi → data nyata beranda/riwayat → editor potongan → Fase 2 face verify → deploy Vercel.

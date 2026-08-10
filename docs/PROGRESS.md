@@ -6,8 +6,8 @@
 ---
 
 ## Status Global
-**Fase aktif:** Fase 0 — Fondasi **SELESAI** → mulai Fase 1
-**Sesi terakhir:** #3 (2026-08-10)
+**Fase aktif:** Fase 1 — MVP QR (alur presensi inti jalan & teruji)
+**Sesi terakhir:** #4 (2026-08-10)
 
 > ✅ Schema DB live. ✅ Auth + admin CRUD jalan & terverifikasi.
 > ⚠️ **Satu tindakan user:** jalankan `supabase/migrations/0004_rls_hardening.sql`
@@ -44,14 +44,17 @@
 - pgvector dipakai untuk `face_embedding vector(128)` (fallback `float8[]`).
 - Git remote: `https://github.com/ngluyo/qrensi.git` (privat, masih kosong — belum push).
 
-## Fase 1 — MVP QR — ◐ mulai
-- ☐ Modul Pegawai (CRUD + assign pola) — admin
-- ☐ Registrasi Kiosk + generate/reset device_secret
-- ☐ Endpoint `qr/generate` (kiosk) + halaman kiosk tampil QR nyata (Realtime)
-- ☐ Endpoint `presensi/verify` (klaim atomik) + scan di HP
-- ☐ Job buka/tutup sesi harian + state machine ke DB
-- ☐ Hitung telat & potongan + rekap; beranda/riwayat data nyata
-- ☐ Editor aturan potongan (admin)
+## Fase 1 — MVP QR — ◐ (vertical slice presensi jalan)
+- ☑ Modul **Pegawai** (list/tambah/hapus + assign unit & pola) + tambah unit kerja
+- ☑ Registrasi **Kiosk** + generate/reset `device_secret` (ditampilkan sekali) + aktif/nonaktif/hapus
+- ☑ Endpoint `POST /api/qr/generate` (auth device_secret, resolusi sesi terbuka, rotasi 60s/instan-saat-klaim) — **teruji live**
+- ☑ Halaman **kiosk** tampil QR nyata (paste secret → polling → render QR + countdown)
+- ☑ Endpoint `POST /api/presensi/verify` (klaim atomik + resolusi sesi per-pegawai + state machine + simpan presensi) — **klaim atomik teruji (1 dari 2)**
+- ☑ Halaman **scan** di HP (html5-qrcode → verify → hasil sukses/gagal + haptic)
+- ☐ Job tutup sesi harian (set `tidak_hadir`/`tidak_ada_di_kantor`) — cron
+- ☐ Beranda/riwayat pakai data presensi nyata (masih contoh)
+- ☐ Editor aturan potongan (admin) + rekap potongan
+- ☐ Face verification (Fase 2) disisipkan sebelum scan
 ## Fase 2 — Biometrik — ☐ belum mulai
 ## Fase 3 — Google & Laporan — ☐ belum mulai
 ## Fase 4 — Hardening — ☐ belum mulai
@@ -63,9 +66,9 @@
 - Google Cloud service account (Sheets/Drive) — Fase 3, belum mendesak.
 - SK resmi jam kerja ASN Kotabaru — pakai default seed dulu.
 
-## Next Session (usulan) — Fase 1
-0. **(User)** Jalankan `supabase/migrations/0004_rls_hardening.sql` (hardening).
-1. Modul **Pegawai** admin (CRUD + assign pola) → agar bisa daftar pegawai nyata.
-2. **Kiosk**: registrasi + `device_secret`, endpoint `qr/generate`, halaman kiosk QR nyata + Realtime rotasi.
-3. **Presensi**: endpoint `presensi/verify` (klaim atomik) + scan HP + state machine → simpan presensi.
-4. Beranda/riwayat pakai data presensi nyata + hitung potongan.
+## Next Session (usulan) — lanjut Fase 1 → Fase 2
+1. Cron **tutup sesi harian**: tandai `tidak_hadir` (masuk lewat batas) & `tidak_ada_di_kantor` (istirahat/pulang tak absen).
+2. **Beranda & Riwayat** pakai data presensi nyata (query per pegawai, kalender bulan).
+3. Editor **aturan potongan** + halaman rekap potongan pegawai.
+4. **Fase 2:** face enrollment + `face/verify` server-side, sisipkan sebelum scan; audit log UI.
+5. Deploy Vercel (env di dashboard) + uji di HP fisik (kamera butuh HTTPS).

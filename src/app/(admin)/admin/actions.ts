@@ -71,3 +71,60 @@ export async function updateJamSesi(formData: FormData) {
   await db.from("jam_kerja_sesi").update(patch).eq("id", id);
   revalidatePath("/admin/jam-kerja");
 }
+
+// ---------- Unit Kerja ----------
+
+export async function createUnit(formData: FormData) {
+  const user = await requireAdmin();
+  const nama = String(formData.get("nama") || "").trim();
+  if (!nama) return;
+  const db = createAdminClient();
+  await db.from("unit_kerja").insert({ instansi_id: user.instansiId, nama });
+  revalidatePath("/admin/pegawai");
+}
+
+// ---------- Pegawai ----------
+
+export async function createPegawai(formData: FormData) {
+  const user = await requireAdmin();
+  const nama = String(formData.get("nama") || "").trim();
+  const nip = String(formData.get("nip") || "").trim() || null;
+  const jabatan = String(formData.get("jabatan") || "").trim() || null;
+  const unit_kerja_id = String(formData.get("unit_kerja_id") || "");
+  const pola_hari_kerja_id = String(formData.get("pola_hari_kerja_id") || "");
+  if (!nama || !unit_kerja_id || !pola_hari_kerja_id) return;
+
+  const db = createAdminClient();
+  await db.from("pegawai").insert({
+    instansi_id: user.instansiId,
+    unit_kerja_id,
+    pola_hari_kerja_id,
+    nama,
+    nip,
+    jabatan,
+  });
+  revalidatePath("/admin/pegawai");
+}
+
+export async function updatePegawai(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const unit_kerja_id = String(formData.get("unit_kerja_id") || "");
+  const pola_hari_kerja_id = String(formData.get("pola_hari_kerja_id") || "");
+  const status = String(formData.get("status_kepegawaian") || "aktif");
+  if (!id) return;
+  const db = createAdminClient();
+  await db
+    .from("pegawai")
+    .update({ unit_kerja_id, pola_hari_kerja_id, status_kepegawaian: status })
+    .eq("id", id);
+  revalidatePath("/admin/pegawai");
+}
+
+export async function deletePegawai(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const db = createAdminClient();
+  await db.from("pegawai").delete().eq("id", id);
+  revalidatePath("/admin/pegawai");
+}

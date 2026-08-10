@@ -25,6 +25,16 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0012 — Kiosk rotasi via polling `qr/generate`, bukan Realtime
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Kiosk polling `POST /api/qr/generate` tiap ~3 detik. Server mengembalikan token aktif yang ada; jika token diklaim (status≠aktif) atau umur >60 detik → terbitkan token baru. Tidak memakai Supabase Realtime.
+- **Alasan:** `qr_token` RLS default-deny → anon (kiosk) tak bisa subscribe Realtime. Polling lebih sederhana, tetap memberi rotasi instan-saat-klaim + fallback 60 detik (blueprint §5.2 sebut polling sebagai fallback sah). Realtime bisa ditambah nanti bila perlu.
+
+### ADR-0011 — Token = bukti kehadiran; sesi diresolusi per-pegawai saat verify
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Token QR kiosk membuktikan kedekatan fisik + kesegaran (nonce+TTL). SESI presensi ditentukan saat verify dari pola pegawai + waktu WITA (bukan dari token). `qr_token.sesi_absensi_harian_id` diisi sesi pola pertama yang terbuka (memenuhi NOT NULL) namun bersifat informational.
+- **Alasan:** 1 kiosk melayani semua pola yang jendela sesinya berbeda; resolusi per-pegawai membuat 1 QR bekerja untuk semua pola tanpa menampilkan banyak QR. Menghindari migrasi skema.
+
 ### ADR-0010 — Akses tabel konfigurasi hanya via server (service-role) + RLS deny
 - **Tanggal:** 2026-08-10
 - **Keputusan:** Tabel konfigurasi/operasional (instansi, unit_kerja, pola_hari_kerja, jam_kerja_sesi, dst) di-enable RLS tanpa policy (default deny). Semua baca/tulis admin lewat **server actions memakai service-role** (`createAdminClient`), digating `requireAdmin()`. Client anon tidak pernah menyentuh tabel ini langsung.
