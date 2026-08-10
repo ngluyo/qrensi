@@ -19,6 +19,7 @@ const ERROR_MSG: Record<string, string> = {
   token_invalid: "QR tidak valid. Pindai kode yang tampil di kiosk.",
   token_terpakai: "Kode sudah dipakai / kedaluwarsa. Pindai kode terbaru di kiosk.",
   di_luar_jendela: "Saat ini di luar jendela absensi.",
+  masuk_belum: "Absen masuk pagi belum berhasil, jadi sesi ini terkunci hari ini.",
   sudah_absen: "Kamu sudah absen untuk sesi ini.",
   unauthorized: "Sesi login habis. Silakan masuk lagi.",
   bukan_pegawai: "Akun ini belum terdaftar sebagai pegawai.",

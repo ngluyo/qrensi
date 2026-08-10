@@ -6,11 +6,11 @@
 ---
 
 ## Status Global
-**Fase aktif:** Fase 1 — MVP QR
-**Sesi terakhir:** #5 (2026-08-10)
+**Fase aktif:** Fase 1 — MVP QR (hampir selesai; sisa: deploy & face=Fase 2)
+**Sesi terakhir:** #6 (2026-08-10)
 
-> ⚠️ **Tindakan user:** jalankan `supabase/migrations/0005_kiosk_device_binding.sql`
-> (tambah kolom binding perangkat) sebelum tes kiosk lagi.
+> ℹ️ Saat deploy Vercel: tambahkan **semua** env dari `.env.local` termasuk `CRON_SECRET`
+> (Vercel Cron otomatis kirim `Authorization: Bearer $CRON_SECRET`). Cron sudah di `vercel.json`.
 
 > ✅ Schema DB live. ✅ Auth + admin CRUD jalan & terverifikasi.
 > ⚠️ **Satu tindakan user:** jalankan `supabase/migrations/0004_rls_hardening.sql`
@@ -56,9 +56,12 @@
 - ☑ Halaman **scan** di HP (html5-qrcode → verify → hasil sukses/gagal + haptic)
 - ☑ Fix bug `/absensi` (Server Component + onClick → jadi Client Component)
 - ☑ Kiosk **device binding** 1-secret-1-perangkat (migrasi 0005) + status "Terikat" di admin
-- ☐ Job tutup sesi harian (set `tidak_hadir`/`tidak_ada_di_kantor`) — cron
-- ☐ Beranda/riwayat pakai data presensi nyata (masih contoh)
-- ☐ Editor aturan potongan (admin) + rekap potongan
+- ☑ Cron **tutup sesi harian** (`/api/cron/tutup-sesi-harian`, vercel.json */5) — `tidak_hadir`/`tidak_ada_di_kantor`; **teruji**
+- ☑ Guard verify: istirahat/pulang butuh masuk berhasil (`masuk_belum`)
+- ☑ **Beranda** data nyata (sesi hari ini + status live + rekap bulan)
+- ☑ **Riwayat** data nyata (kalender bulanan warna-status + ringkasan + estimasi potongan)
+- ☑ Editor **aturan potongan** admin (list per jenis + tambah/hapus)
+- ☐ Deploy Vercel (env + uji kamera HP) — **berikutnya**
 - ☐ Face verification (Fase 2) disisipkan sebelum scan
 ## Fase 2 — Biometrik — ☐ belum mulai
 ## Fase 3 — Google & Laporan — ☐ belum mulai
@@ -71,9 +74,8 @@
 - Google Cloud service account (Sheets/Drive) — Fase 3, belum mendesak.
 - SK resmi jam kerja ASN Kotabaru — pakai default seed dulu.
 
-## Next Session (usulan) — lanjut Fase 1 → Fase 2
-1. Cron **tutup sesi harian**: tandai `tidak_hadir` (masuk lewat batas) & `tidak_ada_di_kantor` (istirahat/pulang tak absen).
-2. **Beranda & Riwayat** pakai data presensi nyata (query per pegawai, kalender bulan).
-3. Editor **aturan potongan** + halaman rekap potongan pegawai.
-4. **Fase 2:** face enrollment + `face/verify` server-side, sisipkan sebelum scan; audit log UI.
-5. Deploy Vercel (env di dashboard) + uji di HP fisik (kamera butuh HTTPS).
+## Next Session (usulan)
+1. **Deploy Vercel**: import repo, isi env (termasuk CRON_SECRET), verifikasi cron, uji kamera HP (HTTPS).
+2. **Fase 2 — Face:** enrollment (admin/HR) + `POST /api/face/verify` (similarity server-side) → `face_session_token`, sisipkan sebelum scan.
+3. Modul **Audit Log** admin (dari `presensi_verifikasi_log`).
+4. Liveness challenge dasar (kedip/menoleh).

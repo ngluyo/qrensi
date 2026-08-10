@@ -128,3 +128,33 @@ export async function deletePegawai(formData: FormData) {
   await db.from("pegawai").delete().eq("id", id);
   revalidatePath("/admin/pegawai");
 }
+
+// ---------- Pengaturan Potongan ----------
+
+export async function createPotongan(formData: FormData) {
+  const user = await requireAdmin();
+  const jenis = String(formData.get("jenis") || "");
+  const menit_dari = parseInt(String(formData.get("menit_dari") || "0"), 10);
+  const sampaiRaw = String(formData.get("menit_sampai") || "").trim();
+  const menit_sampai = sampaiRaw === "" ? null : parseInt(sampaiRaw, 10);
+  const persen = parseFloat(String(formData.get("persen_potongan") || ""));
+  if (!["terlambat", "pulang_cepat", "tidak_hadir"].includes(jenis) || Number.isNaN(persen)) return;
+
+  const db = createAdminClient();
+  await db.from("pengaturan_potongan").insert({
+    instansi_id: user.instansiId,
+    jenis,
+    menit_dari: Number.isNaN(menit_dari) ? 0 : menit_dari,
+    menit_sampai,
+    persen_potongan: persen,
+  });
+  revalidatePath("/admin/potongan");
+}
+
+export async function deletePotongan(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id"));
+  const db = createAdminClient();
+  await db.from("pengaturan_potongan").delete().eq("id", id);
+  revalidatePath("/admin/potongan");
+}

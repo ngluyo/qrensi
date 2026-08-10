@@ -96,3 +96,22 @@
 **Blocker:** user perlu jalankan migrasi 0005 sebelum tes kiosk.
 
 **Next:** cron tutup sesi harian → data nyata beranda/riwayat → editor potongan → Fase 2 (face) → deploy Vercel.
+
+---
+
+## Sesi #6 — 2026-08-10
+**Tujuan:** Lanjut Fase 1 sesuai urutan: cron tutup sesi, data nyata beranda/riwayat, editor potongan.
+
+**Yang dikerjakan:**
+- Cron `/api/cron/tutup-sesi-harian` (+ `lib/tutup-sesi.ts`, `vercel.json` */5, `CRON_SECRET`): tandai `tidak_hadir` (masuk lewat batas) & `tidak_ada_di_kantor` (istirahat/pulang, hanya yang hadir pagi). Idempoten. Teruji: 401 tanpa auth, no-op saat window belum tutup, menandai tidak_hadir saat ditutup (dgn cleanup).
+- Guard verify: sesi istirahat/pulang butuh masuk berhasil -> error `masuk_belum`.
+- `lib/presensi-data.ts`: sesi hari ini + status live, rekap bulan.
+- Beranda & Riwayat kini pakai data nyata (kalender warna-status + estimasi potongan via hitungPotongan).
+- Editor aturan potongan admin (tambah/hapus per jenis).
+- Build hijau di tiap tahap.
+
+**Keputusan baru:** —
+
+**Blocker:** — (saat deploy: set CRON_SECRET & semua env di Vercel).
+
+**Next:** deploy Vercel -> Fase 2 face verify -> audit log UI.

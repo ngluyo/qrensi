@@ -1,29 +1,59 @@
-const legenda = [
-  { tone: "bg-success", label: "Tepat waktu" },
-  { tone: "bg-warning", label: "Terlambat" },
-  { tone: "bg-info", label: "Tidak di kantor" },
-  { tone: "bg-danger", label: "Alpa" },
-];
+import { requireUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/server";
+import { getRekapBulan } from "@/lib/presensi-data";
+import { waktuInstansi } from "@/lib/sesi";
+import { hitungPotongan, type AturanPotongan } from "@/lib/potongan";
+import { RiwayatClient } from "./riwayat-client";
 
-export default function RiwayatPage() {
+export default async function RiwayatPage() {
+  const user = await requireUser();
+  const db = createAdminClient();
+
+  const { data: pegawai } = await db
+    .from("pegawai")
+    .select("id, instansi_id, instansi(timezone)")
+    .eq("auth_user_id", user.authUserId)
+    .maybeSingle();
+
+  if (!pegawai) {
+    return <RiwayatClient year={2026} month={0} perHari={{}} summary={null} potonganPersen={0} />;
+  }
+
+  const tz = (pegawai.instansi as unknown as { timezone: string })?.timezone ?? "Asia/Makassar";
+  const w = waktuInstansi(tz);
+  const [y, m] = w.tanggal.split("-").map(Number);
+  const rekap = await getRekapBulan(db, pegawai.id, tz, y, m - 1);
+
+  // Potongan bulan berjalan.
+  const first = `${y}-${String(m).padStart(2, "0")}-01`;
+  const lastDay = new Date(y, m, 0).getDate();
+  const last = `${y}-${String(m).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+  const [{ data: pres }, { data: aturan }] = await Promise.all([
+    db
+      .from("presensi")
+      .select("status, menit_keterlambatan, sesi_absensi_harian!inner(tanggal)")
+      .eq("pegawai_id", pegawai.id)
+      .gte("sesi_absensi_harian.tanggal", first)
+      .lte("sesi_absensi_harian.tanggal", last),
+    db.from("pengaturan_potongan").select("jenis, menit_dari, menit_sampai, persen_potongan").eq("instansi_id", pegawai.instansi_id),
+  ]);
+  const potongan = hitungPotongan(
+    (pres ?? []).map((p) => ({ status: p.status as string, menit_keterlambatan: p.menit_keterlambatan as number })),
+    (aturan ?? []) as AturanPotongan[],
+  );
+
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-extrabold tracking-tight">Riwayat</h1>
-        <p className="mt-1 text-sm text-muted">Kalender kehadiran &amp; rekap potongan.</p>
-      </header>
-
-      <div className="flex flex-wrap gap-x-4 gap-y-2">
-        {legenda.map((l) => (
-          <span key={l.label} className="flex items-center gap-2 text-xs text-muted">
-            <span className={`size-2.5 rounded-full ${l.tone}`} /> {l.label}
-          </span>
-        ))}
-      </div>
-
-      <div className="rounded-2xl bg-surface p-8 text-center text-sm text-muted shadow-[var(--shadow-sm)]">
-        Kalender bulanan &amp; rekap potongan tampil di sini (Fase 1).
-      </div>
-    </div>
+    <RiwayatClient
+      year={y}
+      month={m - 1}
+      perHari={rekap.perHari}
+      summary={{
+        hadir: rekap.hadir,
+        terlambat: rekap.terlambat,
+        tidakHadir: rekap.tidakHadir,
+        tidakDiKantor: rekap.tidakDiKantor,
+      }}
+      potonganPersen={potongan.total_persen}
+    />
   );
 }

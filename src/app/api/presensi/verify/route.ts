@@ -84,6 +84,40 @@ export async function POST(req: Request) {
     );
   }
 
+  // Prasyarat: istirahat/pulang hanya untuk yang sesi masuknya berhasil hari ini.
+  if (hit.sesi.jenis_sesi !== "masuk") {
+    const { data: masukSesi } = await db
+      .from("jam_kerja_sesi")
+      .select("id")
+      .eq("pola_hari_kerja_id", pegawai.pola_hari_kerja_id)
+      .eq("hari", w.hari)
+      .eq("jenis_sesi", "masuk")
+      .maybeSingle();
+    let hadirPagi = false;
+    if (masukSesi) {
+      const { data: sh } = await db
+        .from("sesi_absensi_harian")
+        .select("id")
+        .eq("jam_kerja_sesi_id", masukSesi.id)
+        .eq("tanggal", w.tanggal)
+        .maybeSingle();
+      if (sh) {
+        const { data: pm } = await db
+          .from("presensi")
+          .select("status")
+          .eq("sesi_absensi_harian_id", sh.id)
+          .eq("pegawai_id", pegawai.id)
+          .maybeSingle();
+        hadirPagi = !!pm && (pm.status === "tepat_waktu" || pm.status === "terlambat");
+      }
+    }
+    if (!hadirPagi) {
+      await db.from("qr_token").update({ status: "gagal" }).eq("id", claimed.id);
+      await logEvent("qr_scan_attempt", "gagal", { reason: "masuk_belum_berhasil", jenis: hit.sesi.jenis_sesi });
+      return NextResponse.json({ ok: false, error: "masuk_belum" }, { status: 422 });
+    }
+  }
+
   const sesiId = await pastikanSesiHarian(db, hit.sesi.id, pegawai.instansi_id, w.tanggal);
 
   // 6. Simpan presensi (unik per pegawai+sesi).
