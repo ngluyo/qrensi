@@ -7,24 +7,49 @@ import { waktuInstansi, adaSesiTerbukaInstansi, pastikanSesiHarian } from "@/lib
 const ROTATE_MS = 60 * 1000; // paksa rotasi tiap 60 detik meski belum diklaim
 
 export async function POST(req: Request) {
-  let body: { device_secret?: string };
+  let body: { device_secret?: string; device_instance_id?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
   const secret = String(body.device_secret || "");
+  const instanceId = String(body.device_instance_id || "");
   if (!secret) return NextResponse.json({ error: "no_secret" }, { status: 400 });
 
   const db = createAdminClient();
   const { data: kiosk } = await db
     .from("perangkat_kiosk")
-    .select("id, instansi_id, aktif")
+    .select("id, instansi_id, aktif, device_instance_id")
     .eq("device_secret_hash", hashDeviceSecret(secret))
     .maybeSingle();
 
   if (!kiosk || !kiosk.aktif) {
     return NextResponse.json({ error: "kiosk_invalid" }, { status: 401 });
+  }
+
+  // Binding 1-secret-ke-1-perangkat.
+  if (!instanceId) {
+    return NextResponse.json({ error: "no_instance" }, { status: 400 });
+  }
+  if (!kiosk.device_instance_id) {
+    // Perangkat pertama: kunci binding.
+    await db
+      .from("perangkat_kiosk")
+      .update({ device_instance_id: instanceId, terikat_at: new Date().toISOString() })
+      .eq("id", kiosk.id)
+      .is("device_instance_id", null); // hindari race dua perangkat sekaligus
+    // Baca ulang untuk memastikan kita yang menang.
+    const { data: after } = await db
+      .from("perangkat_kiosk")
+      .select("device_instance_id")
+      .eq("id", kiosk.id)
+      .single();
+    if (after?.device_instance_id !== instanceId) {
+      return NextResponse.json({ error: "kiosk_terikat_perangkat_lain" }, { status: 409 });
+    }
+  } else if (kiosk.device_instance_id !== instanceId) {
+    return NextResponse.json({ error: "kiosk_terikat_perangkat_lain" }, { status: 409 });
   }
 
   await db.from("perangkat_kiosk").update({ terakhir_online: new Date().toISOString() }).eq("id", kiosk.id);

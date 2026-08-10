@@ -52,7 +52,11 @@ export async function resetKioskSecret(
   const db = createAdminClient();
   const { data, error } = await db
     .from("perangkat_kiosk")
-    .update({ device_secret_hash: hashDeviceSecret(secret) })
+    .update({
+      device_secret_hash: hashDeviceSecret(secret),
+      device_instance_id: null, // lepas binding perangkat lama
+      terikat_at: null,
+    })
     .eq("id", id)
     .select("nama_perangkat")
     .single();

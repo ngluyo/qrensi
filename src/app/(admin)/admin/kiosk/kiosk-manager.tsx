@@ -10,6 +10,7 @@ interface Kiosk {
   latitude: number;
   longitude: number;
   aktif: boolean;
+  device_instance_id: string | null;
   unit_kerja: { nama: string } | null;
 }
 
@@ -63,13 +64,22 @@ export function KioskManager({
                   {k.unit_kerja?.nama ? ` · ${k.unit_kerja.nama}` : ""}
                 </div>
               </div>
-              <span
-                className={`rounded-md px-2 py-0.5 text-[11px] font-semibold ${
-                  k.aktif ? "bg-success-soft text-success" : "bg-surface-2 text-muted"
-                }`}
-              >
-                {k.aktif ? "Aktif" : "Nonaktif"}
-              </span>
+              <div className="flex flex-col items-end gap-1">
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[11px] font-semibold ${
+                    k.aktif ? "bg-success-soft text-success" : "bg-surface-2 text-muted"
+                  }`}
+                >
+                  {k.aktif ? "Aktif" : "Nonaktif"}
+                </span>
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${
+                    k.device_instance_id ? "bg-brand-soft text-brand" : "bg-surface-2 text-muted"
+                  }`}
+                >
+                  {k.device_instance_id ? "Terikat" : "Belum terikat"}
+                </span>
+              </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <form action={resetAction}>

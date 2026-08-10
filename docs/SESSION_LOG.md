@@ -79,3 +79,20 @@
 **Blocker:** — (kamera hanya bisa diuji di HP fisik/HTTPS; logika inti sudah diverifikasi via API/DB).
 
 **Next:** cron tutup sesi → data nyata beranda/riwayat → editor potongan → Fase 2 face verify → deploy Vercel.
+
+---
+
+## Sesi #5 — 2026-08-10
+**Tujuan:** Perbaikan pasca-uji user + peningkatan keamanan kiosk.
+
+**Yang dikerjakan:**
+- Fix runtime error `/absensi`: halaman jadi Client Component (onClick getar tak boleh di Server Component).
+- **Device binding kiosk** (ADR-0013): kolom `device_instance_id`+`terikat_at` (migrasi 0005). Generate mengunci perangkat pertama; perangkat lain ditolak (409). Reset secret melepas binding. Status "Terikat/Belum terikat" tampil di panel admin.
+- Penjelasan ke user: device secret one-time per perangkat (localStorage); GPS kiosk tidak dipakai verifikasi (aman dipindah dalam kantor).
+- Build hijau.
+
+**Keputusan baru:** ADR-0013 (kiosk device binding).
+
+**Blocker:** user perlu jalankan migrasi 0005 sebelum tes kiosk.
+
+**Next:** cron tutup sesi harian → data nyata beranda/riwayat → editor potongan → Fase 2 (face) → deploy Vercel.

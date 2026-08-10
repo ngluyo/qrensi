@@ -25,6 +25,11 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0013 — Kiosk: binding 1-secret-ke-1-perangkat (device_instance_id)
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Kiosk membuat `device_instance_id` (UUID acak di localStorage) dan mengirimnya tiap generate. Perangkat pertama mengunci binding di `perangkat_kiosk.device_instance_id`; perangkat lain dengan secret sama ditolak (409 `kiosk_terikat_perangkat_lain`). "Reset secret" admin melepas binding. Migrasi `0005`.
+- **Alasan:** Menjawab risiko secret bocor/dipakai di perangkat lain (termasuk relay QR jarak jauh). Bukan hardware-attestation penuh, tapi menaikkan biaya kecurangan; pertahanan identitas utama tetap face verification (Fase 2). Koordinat GPS kiosk tetap tidak dipakai untuk verifikasi (lokasi dibuktikan oleh kedekatan fisik memindai) — memindahkan kiosk dalam kantor tidak berpengaruh.
+
 ### ADR-0012 — Kiosk rotasi via polling `qr/generate`, bukan Realtime
 - **Tanggal:** 2026-08-10
 - **Keputusan:** Kiosk polling `POST /api/qr/generate` tiap ~3 detik. Server mengembalikan token aktif yang ada; jika token diklaim (status≠aktif) atau umur >60 detik → terbitkan token baru. Tidak memakai Supabase Realtime.

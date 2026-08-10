@@ -5,9 +5,20 @@ import QRCode from "qrcode";
 import { KeyRound, WifiOff, Clock } from "lucide-react";
 
 const LS_KEY = "qrensi_kiosk_secret";
+const LS_INSTANCE = "qrensi_kiosk_instance";
 const POLL_MS = 3000;
 
-type Status = "setup" | "loading" | "open" | "closed" | "error";
+type Status = "setup" | "loading" | "open" | "closed" | "error" | "terikat";
+
+/** Id acak unik per perangkat (dibuat sekali, disimpan permanen). */
+function getInstanceId(): string {
+  let id = localStorage.getItem(LS_INSTANCE);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(LS_INSTANCE, id);
+  }
+  return id;
+}
 
 export default function KioskTampilanPage() {
   const [secret, setSecret] = useState<string | null>(null);
@@ -37,11 +48,15 @@ export default function KioskTampilanPage() {
       const res = await fetch("/api/qr/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device_secret: secret }),
+        body: JSON.stringify({ device_secret: secret, device_instance_id: getInstanceId() }),
       });
       if (res.status === 401) {
         setStatus("error");
-        return;
+        return; // stop polling (secret salah/nonaktif)
+      }
+      if (res.status === 409) {
+        setStatus("terikat");
+        return; // stop polling (terikat perangkat lain)
       }
       const data = await res.json();
       if (data.open && data.token_value) {
@@ -56,9 +71,9 @@ export default function KioskTampilanPage() {
       } else {
         setStatus("closed");
       }
+      timer.current = setTimeout(poll, POLL_MS); // lanjut polling
     } catch {
-      setStatus("error");
-    } finally {
+      // Koneksi putus sesaat: pertahankan tampilan terakhir, coba lagi.
       timer.current = setTimeout(poll, POLL_MS);
     }
   }, [secret]);
@@ -125,10 +140,19 @@ export default function KioskTampilanPage() {
             <p className="mt-3 font-semibold">Belum ada sesi absensi</p>
             <p className="text-sm">QR muncul otomatis saat jendela sesi terbuka.</p>
           </div>
-        ) : status === "error" ? (
+        ) : status === "error" || status === "terikat" ? (
           <div className="text-center text-danger">
             <WifiOff className="mx-auto size-16" />
-            <p className="mt-3 font-semibold">Secret salah / kiosk nonaktif</p>
+            <p className="mt-3 font-semibold">
+              {status === "terikat"
+                ? "Secret ini sudah terikat ke perangkat lain"
+                : "Secret salah / kiosk nonaktif"}
+            </p>
+            {status === "terikat" && (
+              <p className="mx-auto mt-1 max-w-xs text-xs text-danger/70">
+                Minta admin melakukan “Reset secret” di panel kiosk untuk memindahkan ke perangkat ini.
+              </p>
+            )}
             <button
               onClick={() => {
                 localStorage.removeItem(LS_KEY);

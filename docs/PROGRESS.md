@@ -6,8 +6,11 @@
 ---
 
 ## Status Global
-**Fase aktif:** Fase 1 — MVP QR (alur presensi inti jalan & teruji)
-**Sesi terakhir:** #4 (2026-08-10)
+**Fase aktif:** Fase 1 — MVP QR
+**Sesi terakhir:** #5 (2026-08-10)
+
+> ⚠️ **Tindakan user:** jalankan `supabase/migrations/0005_kiosk_device_binding.sql`
+> (tambah kolom binding perangkat) sebelum tes kiosk lagi.
 
 > ✅ Schema DB live. ✅ Auth + admin CRUD jalan & terverifikasi.
 > ⚠️ **Satu tindakan user:** jalankan `supabase/migrations/0004_rls_hardening.sql`
@@ -51,6 +54,8 @@
 - ☑ Halaman **kiosk** tampil QR nyata (paste secret → polling → render QR + countdown)
 - ☑ Endpoint `POST /api/presensi/verify` (klaim atomik + resolusi sesi per-pegawai + state machine + simpan presensi) — **klaim atomik teruji (1 dari 2)**
 - ☑ Halaman **scan** di HP (html5-qrcode → verify → hasil sukses/gagal + haptic)
+- ☑ Fix bug `/absensi` (Server Component + onClick → jadi Client Component)
+- ☑ Kiosk **device binding** 1-secret-1-perangkat (migrasi 0005) + status "Terikat" di admin
 - ☐ Job tutup sesi harian (set `tidak_hadir`/`tidak_ada_di_kantor`) — cron
 - ☐ Beranda/riwayat pakai data presensi nyata (masih contoh)
 - ☐ Editor aturan potongan (admin) + rekap potongan

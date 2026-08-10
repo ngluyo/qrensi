@@ -9,7 +9,7 @@ export default async function KioskPage() {
   const [{ data: kiosks }, { data: units }] = await Promise.all([
     db
       .from("perangkat_kiosk")
-      .select("id, nama_perangkat, latitude, longitude, aktif, unit_kerja(nama)")
+      .select("id, nama_perangkat, latitude, longitude, aktif, device_instance_id, unit_kerja(nama)")
       .eq("instansi_id", user.instansiId)
       .order("nama_perangkat"),
     db.from("unit_kerja").select("id, nama").eq("instansi_id", user.instansiId).order("nama"),
