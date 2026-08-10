@@ -6,8 +6,8 @@
 ---
 
 ## Status Global
-**Fase aktif:** Fase 1 — MVP QR (hampir selesai; sisa: deploy & face=Fase 2)
-**Sesi terakhir:** #6 (2026-08-10)
+**Fase aktif:** Fase 2 — Biometrik (face verification jalan; sisa liveness/audit) + siap deploy
+**Sesi terakhir:** #7 (2026-08-10)
 
 > ℹ️ Saat deploy Vercel: tambahkan **semua** env dari `.env.local` termasuk `CRON_SECRET`
 > (Vercel Cron otomatis kirim `Authorization: Bearer $CRON_SECRET`). Cron sudah di `vercel.json`.
@@ -63,7 +63,15 @@
 - ☑ Editor **aturan potongan** admin (list per jenis + tambah/hapus)
 - ☐ Deploy Vercel (env + uji kamera HP) — **berikutnya**
 - ☐ Face verification (Fase 2) disisipkan sebelum scan
-## Fase 2 — Biometrik — ☐ belum mulai
+## Fase 2 — Biometrik — ◐ (face verification jalan)
+- ☑ Model face-api di `public/models` (tiny + landmark68 + recognition)
+- ☑ `lib/face.ts` (client descriptor), `lib/face-token.ts` (HMAC 90s), `lib/face-embedding.ts` (euclidean, threshold 0.55, pgvector helpers)
+- ☑ `POST /api/face/enroll` (admin) + halaman **/admin/enrollment** (kamera → descriptor → simpan)
+- ☑ `POST /api/face/verify` (server-side decision) → `face_session_token` — teruji: pgvector roundtrip (self-dist 0), 401 tanpa login
+- ☑ Langkah **/absensi/wajah** sebelum scan; scan kirim face token; `presensi/verify` gating bila enrolled
+- ☐ Liveness challenge dasar (kedip/menoleh) — follow-up
+- ☐ Modul Audit Log admin (dari presensi_verifikasi_log)
+- ☐ Notifikasi anomali ke admin
 ## Fase 3 — Google & Laporan — ☐ belum mulai
 ## Fase 4 — Hardening — ☐ belum mulai
 

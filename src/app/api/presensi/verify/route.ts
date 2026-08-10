@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { verifyToken } from "@/lib/qr-token";
+import { verifyFaceToken } from "@/lib/face-token";
 import { waktuInstansi, cariSesiTerbukaPola, pastikanSesiHarian } from "@/lib/sesi";
 
 /**
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
 
-  let body: { token_value?: string };
+  let body: { token_value?: string; face_session_token?: string };
   try {
     body = await req.json();
   } catch {
@@ -33,6 +34,20 @@ export async function POST(req: Request) {
     .eq("auth_user_id", user.id)
     .maybeSingle();
   if (!pegawai) return NextResponse.json({ ok: false, error: "bukan_pegawai" }, { status: 403 });
+
+  // Gating wajah: WAJIB bila pegawai sudah enroll (blueprint §6.2). Bila belum
+  // enroll, dilewati (rollout bertahap) — akan diwajibkan setelah semua terdaftar.
+  const { data: enr } = await db
+    .from("pegawai_face_enrollment")
+    .select("pegawai_id")
+    .eq("pegawai_id", pegawai.id)
+    .maybeSingle();
+  if (enr) {
+    const ft = verifyFaceToken(String(body.face_session_token || ""));
+    if (!ft.valid || ft.pegawaiId !== pegawai.id) {
+      return NextResponse.json({ ok: false, error: "wajah_belum", reason: ft.reason }, { status: 401 });
+    }
+  }
 
   const logEvent = (tipe: string, hasil: string, detail: unknown, presensiId?: string) =>
     db.from("presensi_verifikasi_log").insert({

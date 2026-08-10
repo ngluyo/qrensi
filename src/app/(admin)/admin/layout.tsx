@@ -7,12 +7,14 @@ import {
   MonitorSmartphone,
   Percent,
   ScrollText,
+  ScanFace,
   LogOut,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 
 const menu = [
   { href: "/admin/pegawai", label: "Pegawai", icon: Users },
+  { href: "/admin/enrollment", label: "Enrollment", icon: ScanFace },
   { href: "/admin/pola-hari-kerja", label: "Pola Hari Kerja", icon: CalendarRange },
   { href: "/admin/jam-kerja", label: "Jam Kerja", icon: Clock },
   { href: "/admin/kiosk", label: "Kiosk", icon: MonitorSmartphone },

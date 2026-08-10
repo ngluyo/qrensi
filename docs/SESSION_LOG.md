@@ -115,3 +115,22 @@
 **Blocker:** — (saat deploy: set CRON_SECRET & semua env di Vercel).
 
 **Next:** deploy Vercel -> Fase 2 face verify -> audit log UI.
+
+---
+
+## Sesi #7 — 2026-08-10
+**Tujuan:** Fase 2 — face verification server-side.
+
+**Yang dikerjakan:**
+- Unduh model face-api (@vladmandic) ke public/models (tiny_face_detector, landmark68, recognition ~7MB).
+- lib: face.ts (client descriptor via dynamic import), face-token.ts (HMAC 90s, namespace face:), face-embedding.ts (euclidean, threshold 0.55, pgvector literal helpers).
+- POST /api/face/enroll (admin) + halaman /admin/enrollment (kamera -> descriptor -> upsert embedding). Nav admin +Enrollment.
+- POST /api/face/verify (server hitung distance, keputusan di server) -> face_session_token.
+- Langkah /absensi/wajah sebelum scan; /absensi/scan kirim face_session_token; presensi/verify gating WAJIB bila pegawai sudah enroll (belum enroll = dilewati, rollout bertahap).
+- Teruji: pgvector roundtrip (self-distance 0, beda 3.39), auth 401/307, build hijau.
+
+**Keputusan baru:** ADR-0014 (face: descriptor client, keputusan server, gating bertahap).
+
+**Blocker:** kamera enroll/verify hanya bisa diuji di HP/HTTPS (deploy). Liveness belum ada.
+
+**Next:** deploy Vercel -> uji kamera enroll+verify di HP -> liveness challenge -> audit log UI.

@@ -25,6 +25,11 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0014 — Face verification: descriptor di client, keputusan di server, gating bertahap
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Model face-api (@vladmandic) di `public/models` (tiny_face_detector + landmark68 + recognition). HP hitung descriptor 128-d; `POST /api/face/verify` menghitung euclidean distance vs embedding tersimpan (threshold 0.55) & menerbitkan `face_session_token` (HMAC, 90s, namespace "face:"+QR_SIGNING_SECRET). Embedding disimpan pgvector `vector(128)` (literal `[...]`), dibaca & dibandingkan di JS. `presensi/verify` mewajibkan face token **hanya bila pegawai sudah enroll** (rollout bertahap; belum enroll = dilewati). Enrollment oleh admin (`/admin/enrollment`).
+- **Alasan:** Keputusan tak boleh di client (bisa dimanipulasi). Gating bersyarat memungkinkan go-live sebelum semua pegawai ter-enroll. Liveness challenge (kedip/menoleh) belum diimplementasi — follow-up; risiko spoofing foto masih ada (blueprint §6.3).
+
 ### ADR-0013 — Kiosk: binding 1-secret-ke-1-perangkat (device_instance_id)
 - **Tanggal:** 2026-08-10
 - **Keputusan:** Kiosk membuat `device_instance_id` (UUID acak di localStorage) dan mengirimnya tiap generate. Perangkat pertama mengunci binding di `perangkat_kiosk.device_instance_id`; perangkat lain dengan secret sama ditolak (409 `kiosk_terikat_perangkat_lain`). "Reset secret" admin melepas binding. Migrasi `0005`.

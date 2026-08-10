@@ -20,6 +20,7 @@ const ERROR_MSG: Record<string, string> = {
   token_terpakai: "Kode sudah dipakai / kedaluwarsa. Pindai kode terbaru di kiosk.",
   di_luar_jendela: "Saat ini di luar jendela absensi.",
   masuk_belum: "Absen masuk pagi belum berhasil, jadi sesi ini terkunci hari ini.",
+  wajah_belum: "Verifikasi wajah kedaluwarsa. Ulangi langkah verifikasi wajah.",
   sudah_absen: "Kamu sudah absen untuk sesi ini.",
   unauthorized: "Sesi login habis. Silakan masuk lagi.",
   bukan_pegawai: "Akun ini belum terdaftar sebagai pegawai.",
@@ -31,13 +32,25 @@ export default function ScanPage() {
   const scannerRef = useRef<import("html5-qrcode").Html5Qrcode | null>(null);
   const lockRef = useRef(false);
 
+  function getFaceToken(): string | undefined {
+    try {
+      const raw = sessionStorage.getItem("qrensi_face_token");
+      if (!raw) return undefined;
+      const { token, exp } = JSON.parse(raw);
+      if (exp && Date.now() > exp) return undefined;
+      return token;
+    } catch {
+      return undefined;
+    }
+  }
+
   async function submit(tokenValue: string) {
     setPhase("submitting");
     try {
       const res = await fetch("/api/presensi/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token_value: tokenValue }),
+        body: JSON.stringify({ token_value: tokenValue, face_session_token: getFaceToken() }),
       });
       const data = await res.json();
       if (data.ok) {

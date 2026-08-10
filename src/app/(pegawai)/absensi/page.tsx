@@ -5,7 +5,7 @@ import { ScanFace, QrCode, ArrowRight } from "lucide-react";
 
 export default function AbsensiPage() {
   const langkah = [
-    { n: 1, judul: "Verifikasi wajah", desc: "Segera hadir (Fase 2) — sementara dilewati", icon: ScanFace, soon: true },
+    { n: 1, judul: "Verifikasi wajah", desc: "Kamera memindai wajah, diverifikasi server", icon: ScanFace, soon: false },
     { n: 2, judul: "Scan QR kiosk", desc: "Arahkan kamera ke QR di kiosk kantor", icon: QrCode, soon: false },
   ];
   return (
@@ -34,14 +34,14 @@ export default function AbsensiPage() {
       </div>
 
       <Link
-        href="/absensi/scan"
+        href="/absensi/wajah"
         onClick={() => navigator.vibrate?.(12)}
         className="pressable flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-4 font-bold text-brand-fg"
       >
-        Mulai scan QR <ArrowRight className="size-5" />
+        Mulai absensi <ArrowRight className="size-5" />
       </Link>
       <p className="text-center text-xs text-muted">
-        Verifikasi wajah (Fase 2) akan disisipkan sebelum langkah scan.
+        Wajah diverifikasi di server; QR kiosk membuktikan kehadiran fisik.
       </p>
     </div>
   );
