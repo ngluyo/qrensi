@@ -1,5 +1,6 @@
 {
   "crons": [
-    { "path": "/api/cron/tutup-sesi-harian", "schedule": "30 15 * * *" }
+    { "path": "/api/cron/tutup-sesi-harian", "schedule": "30 15 * * *" },
+    { "path": "/api/cron/laporan-harian", "schedule": "45 15 * * *" }
   ]
 }
