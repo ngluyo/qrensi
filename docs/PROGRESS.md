@@ -78,7 +78,13 @@
 - ☑ Liveness challenge dasar: kedip 2× + menoleh (EAR/yaw dari landmark) sebelum capture descriptor
 - ☐ Modul Audit Log admin (dari presensi_verifikasi_log)
 - ☐ Notifikasi anomali ke admin
-## Fase 3 — Google & Laporan — ☐ belum mulai
+## Fase 3 — Google & Laporan — ◐
+- ☑ Modul **Audit Log** admin (presensi_verifikasi_log, filter hasil/tipe, 100 terbaru)
+- ☑ **Ekspor Sheets** (`lib/google-sheets.ts` + /admin/laporan): rekap bulanan semua pegawai → tab per bulan — **teruji ke spreadsheet "Rekap QRensi"**
+- ☐ Backup Google Drive (dump/CSV)
+- ☐ Ekspor terjadwal (cron harian ke-2)
+- ☐ Laporan bulanan siap cetak (PDF)
+- ☐ Form sanggahan/izin pegawai
 ## Fase 4 — Hardening — ☐ belum mulai
 
 ---

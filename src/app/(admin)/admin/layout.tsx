@@ -8,6 +8,7 @@ import {
   Percent,
   ScrollText,
   ScanFace,
+  FileSpreadsheet,
   LogOut,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
@@ -19,6 +20,7 @@ const menu = [
   { href: "/admin/jam-kerja", label: "Jam Kerja", icon: Clock },
   { href: "/admin/kiosk", label: "Kiosk", icon: MonitorSmartphone },
   { href: "/admin/potongan", label: "Potongan", icon: Percent },
+  { href: "/admin/laporan", label: "Laporan", icon: FileSpreadsheet },
   { href: "/admin/audit-log", label: "Audit Log", icon: ScrollText },
 ];
 

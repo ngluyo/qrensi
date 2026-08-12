@@ -168,3 +168,21 @@
 **Blocker:** —
 
 **Next:** Audit Log admin -> Fase 3 (ekspor Sheets/Drive) -> Web Push -> perketat admin_unit scoping.
+
+---
+
+## Sesi #10 — 2026-08-10
+**Tujuan:** Audit Log admin + Fase 3 ekspor Google Sheets.
+
+**Yang dikerjakan:**
+- Modul Audit Log (/admin/audit-log): baca presensi_verifikasi_log, filter hasil (sukses/gagal/dicurigai) & tipe (scan/face), 100 terbaru, tampil pegawai+waktu+alasan+jarak.
+- lib/google-sheets.ts (JWT service account) + /admin/laporan (tombol ekspor useActionState) + action eksporSheets: hitung rekap bulanan semua pegawai (hadir/telat/menit/alpa/tdk-di-kantor/potongan%) -> tulis ke tab Rekap_MM-YYYY (overwrite).
+- Nav admin +Laporan.
+- Teruji: tulis nyata ke spreadsheet "Rekap QRensi" (auth+addSheet+update+deleteSheet), semua sukses.
+- Build hijau.
+
+**Keputusan baru:** —
+
+**Blocker:** —
+
+**Next:** backup Drive + ekspor terjadwal (cron ke-2) + PDF + form sanggahan; Web Push; perketat admin_unit scoping.
