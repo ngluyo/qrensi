@@ -206,3 +206,20 @@
 **Blocker:** user perlu buat OAuth client + refresh token (panduan di SETUP 4b).
 
 **Next:** setelah env OAuth -> uji backup Drive; ekspor/backup terjadwal (cron ke-2); form sanggahan; Web Push.
+
+---
+
+## Sesi #12 — 2026-08-10
+**Tujuan:** Verifikasi Drive OAuth + ekspor/backup terjadwal + form sanggahan/izin.
+
+**Yang dikerjakan:**
+- Verifikasi backup Drive OAuth: upload CSV nyata OK (folder "QRensi Backup" dibuat).
+- Cron /api/cron/laporan-harian (vercel.json 23:45 WITA): loop instansi -> Sheets export + Drive backup. Teruji live: sheets:ok, drive:ok.
+- Fitur Izin & Sanggahan: migration 0006 (tabel sanggahan, RLS deny) + bucket Storage 'sanggahan' (privat 5MB, dibuat via service role). Pegawai /izin (form + riwayat, lampiran) via action ajukanIzin (upload service-role). Admin /admin/sanggahan (list, signed URL lampiran, approve/reject + catatan). Link di profil + nav admin.
+- Build hijau.
+
+**Keputusan baru:** —
+
+**Blocker:** user jalankan migration 0006 sebelum tes sanggahan.
+
+**Next:** Web Push (pengingat H-10 + notif anomali) [butuh migration push_subscription] -> PDF laporan -> perketat admin_unit scoping.

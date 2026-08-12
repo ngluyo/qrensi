@@ -1,8 +1,10 @@
-import { ScanFace, Bell, LogOut, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { ScanFace, Bell, LogOut, ChevronRight, FileText } from "lucide-react";
 
 const menu = [
-  { label: "Enrollment wajah", desc: "Daftarkan / perbarui wajah", icon: ScanFace },
-  { label: "Notifikasi", desc: "Pengingat sebelum sesi tutup", icon: Bell },
+  { label: "Izin & Sanggahan", desc: "Ajukan izin/sakit/cuti/dinas", icon: FileText, href: "/izin" },
+  { label: "Enrollment wajah", desc: "Daftarkan / perbarui wajah", icon: ScanFace, href: null },
+  { label: "Notifikasi", desc: "Pengingat sebelum sesi tutup", icon: Bell, href: null },
 ];
 
 export default function ProfilPage() {
@@ -23,21 +25,26 @@ export default function ProfilPage() {
       </div>
 
       <div className="space-y-2">
-        {menu.map((m) => (
-          <button
-            key={m.label}
-            className="pressable flex w-full items-center gap-3 rounded-2xl bg-surface p-4 text-left shadow-[var(--shadow-sm)]"
-          >
-            <div className="grid size-10 place-items-center rounded-xl bg-surface-2 text-muted">
-              <m.icon className="size-5" />
-            </div>
-            <div className="flex-1">
-              <div className="font-semibold">{m.label}</div>
-              <div className="text-xs text-muted">{m.desc}</div>
-            </div>
-            <ChevronRight className="size-5 text-muted" />
-          </button>
-        ))}
+        {menu.map((m) => {
+          const inner = (
+            <>
+              <div className="grid size-10 place-items-center rounded-xl bg-surface-2 text-muted">
+                <m.icon className="size-5" />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold">{m.label}</div>
+                <div className="text-xs text-muted">{m.desc}</div>
+              </div>
+              <ChevronRight className="size-5 text-muted" />
+            </>
+          );
+          const cls = "pressable flex w-full items-center gap-3 rounded-2xl bg-surface p-4 text-left shadow-[var(--shadow-sm)]";
+          return m.href ? (
+            <Link key={m.label} href={m.href} className={cls}>{inner}</Link>
+          ) : (
+            <button key={m.label} className={cls}>{inner}</button>
+          );
+        })}
         <form action="/logout" method="post">
           <button className="pressable flex w-full items-center gap-3 rounded-2xl bg-danger-soft p-4 text-left text-danger">
             <div className="grid size-10 place-items-center rounded-xl bg-danger/10">

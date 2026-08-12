@@ -6,8 +6,10 @@
 ---
 
 ## Status Global
-**Fase aktif:** Fase 2 — Biometrik (face verification jalan; sisa liveness/audit) + siap deploy
-**Sesi terakhir:** #7 (2026-08-10)
+**Fase aktif:** Fase 3 — Google & Laporan (hampir selesai) → Fase 4
+**Sesi terakhir:** #12 (2026-08-10)
+
+> ⚠️ **Tindakan user:** jalankan `supabase/migrations/0006_sanggahan.sql` (tabel sanggahan) sebelum tes fitur Izin & Sanggahan. Bucket Storage 'sanggahan' sudah dibuat.
 
 > ℹ️ Saat deploy Vercel: tambahkan **semua** env dari `.env.local` termasuk `CRON_SECRET`
 > (Vercel Cron otomatis kirim `Authorization: Bearer $CRON_SECRET`). Cron sudah di `vercel.json`.
@@ -83,8 +85,8 @@
 - ☑ **Ekspor Sheets** (`lib/google-sheets.ts` + /admin/laporan): rekap bulanan semua pegawai → tab per bulan — **teruji ke spreadsheet "Rekap QRensi"**
 - ☑ Backup Google Drive (OAuth refresh token, scope drive.file, folder "QRensi Backup", CSV) — **teruji: upload nyata OK**
 - ☑ Ekspor + backup **terjadwal** (`/api/cron/laporan-harian`, vercel.json 23:45 WITA) — **teruji live (sheets:ok, drive:ok)**
+- ☑ **Form sanggahan/izin** pegawai (ajukan izin/sakit/cuti/dinas/sanggahan + lampiran ke Storage) + admin approve/reject (`/admin/sanggahan`) — ⚠️ **butuh migration 0006 + bucket 'sanggahan' (sudah dibuat)**
 - ☐ Laporan bulanan siap cetak (PDF)
-- ☐ Form sanggahan/izin pegawai
 ## Fase 4 — Hardening — ☐ belum mulai
 
 ---
