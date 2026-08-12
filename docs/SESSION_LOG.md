@@ -186,3 +186,23 @@
 **Blocker:** —
 
 **Next:** backup Drive + ekspor terjadwal (cron ke-2) + PDF + form sanggahan; Web Push; perketat admin_unit scoping.
+
+---
+
+## Sesi #11 — 2026-08-10
+**Tujuan:** Fase 3 — backup Google Drive (OAuth) untuk Drive personal.
+
+**Yang dikerjakan:**
+- Konfirmasi ke user: service account tak bisa upload ke Drive personal (kuota 0); Sheets jalan karena edit file existing. Pilihan: OAuth. (ADR-0017)
+- lib/rekap.ts: computeRekapBulanan + rekapToCsv (dipakai bersama Sheets & Drive). Refactor eksporSheets memakainya.
+- lib/google-drive.ts: OAuth2 (refresh token), scope drive.file, find/create folder "QRensi Backup", upload CSV.
+- Action backupDrive + tombol "Backup CSV ke Drive" di /admin/laporan.
+- scripts/get-google-refresh-token.mjs (loopback OAuth, cetak refresh token).
+- .env.example + SETUP_CHECKLIST 4b (langkah OAuth + Production publish agar token tak 7-hari).
+- Build hijau. (Drive belum bisa diuji sampai user isi GOOGLE_CLIENT_ID/SECRET/REFRESH_TOKEN.)
+
+**Keputusan baru:** ADR-0017 (Drive via OAuth).
+
+**Blocker:** user perlu buat OAuth client + refresh token (panduan di SETUP 4b).
+
+**Next:** setelah env OAuth -> uji backup Drive; ekspor/backup terjadwal (cron ke-2); form sanggahan; Web Push.

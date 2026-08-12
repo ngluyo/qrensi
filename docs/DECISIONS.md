@@ -25,6 +25,11 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0017 — Backup Drive via OAuth (bukan service account) untuk Drive personal
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Backup CSV ke Google Drive pakai **OAuth refresh token** (GOOGLE_CLIENT_ID/SECRET/REFRESH_TOKEN), bertindak sebagai akun pemilik; scope `drive.file`; app buat/temukan folder "QRensi Backup" sendiri. Sheets tetap pakai service account (edit file existing = tak makan kuota).
+- **Alasan:** Service account di akun consumer punya kuota 0 → upload file baru gagal (`storageQuotaExceeded`); sharing folder ke SA tidak cukup (dikonfirmasi user). OAuth = file dimiliki user (kuota 15GB). Catatan: OAuth consent perlu status **Production** agar refresh token tidak kedaluwarsa 7 hari.
+
 ### ADR-0016 — Provisioning akun pegawai oleh admin (password sementara)
 - **Tanggal:** 2026-08-10
 - **Keputusan:** Tidak ada self-registration (sesuai blueprint). Admin menambah data pegawai, lalu "Buat akun login" → `auth.admin.createUser` (email atau `<nip>@qrensi.local` bila tanpa email) + **password sementara ditampilkan sekali** untuk diserahkan; `pegawai.auth_user_id` ditaut. Pegawai ganti password setelah login pertama.

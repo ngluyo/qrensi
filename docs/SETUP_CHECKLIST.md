@@ -35,7 +35,19 @@
 - ☐ Enable **Google Sheets API** + **Google Drive API**.
 - ☐ Buat Service Account → Keys → JSON. Dari JSON ambil `client_email` & `private_key`.
 - ☐ Buat 1 spreadsheet kosong + 1 folder Drive, **share ke `client_email`** (Editor).
-- ☐ Kirim: `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`, `GOOGLE_SHEETS_REKAP_ID`, `GOOGLE_DRIVE_BACKUP_FOLDER_ID`.
+- ☑ Sheets: `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`, `GOOGLE_SHEETS_REKAP_ID` — sudah, **teruji** tulis ke "Rekap QRensi".
+
+## 4b. Google Drive backup (OAuth — akun personal)
+> Service account TIDAK bisa upload ke Drive personal (kuota 0 → gagal). Pakai OAuth (bertindak sebagai akun Anda).
+- ☐ GCP (project sama) → **Enable Google Drive API**.
+- ☐ **APIs & Services → Credentials → Create OAuth client ID → Desktop app** → catat Client ID & Secret.
+- ☐ **OAuth consent screen:** User type External. Agar refresh token **tidak** kedaluwarsa 7 hari, set Publishing status ke **Production** (klik "Publish app"; abaikan peringatan "unverified" untuk pemakaian sendiri). Scope: `drive.file`.
+- ☐ Ambil refresh token (jalankan lokal, butuh browser):
+  ```bash
+  node scripts/get-google-refresh-token.mjs <CLIENT_ID> <CLIENT_SECRET>
+  ```
+- ☐ Isi ke `.env.local` **dan** Vercel: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN`.
+- App otomatis membuat folder **"QRensi Backup"** di Drive Anda (folder pra-buat tidak dipakai).
 
 ## 5. Secrets yang saya bantu generate (Anda tinggal simpan)
 - ☑ `QR_SIGNING_SECRET` — sudah diisi user.
