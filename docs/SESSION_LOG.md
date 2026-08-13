@@ -223,3 +223,22 @@
 **Blocker:** user jalankan migration 0006 sebelum tes sanggahan.
 
 **Next:** Web Push (pengingat H-10 + notif anomali) [butuh migration push_subscription] -> PDF laporan -> perketat admin_unit scoping.
+
+---
+
+## Sesi #13 — 2026-08-10
+**Tujuan:** Web Push real-time (tanpa reminder terjadwal) — notif anomali wajah ke admin.
+
+**Yang dikerjakan:**
+- install web-push. migration 0007 (push_subscription, RLS deny).
+- lib/push.ts: pushToAuthUsers + adminAuthUserIds; VAPID dari env; auto-hapus langganan mati (410/404).
+- public/sw.js: handler 'push' + 'notificationclick'; cache bump v2.
+- /api/push/subscribe (simpan langganan user login). components/notif-toggle.tsx (minta izin + subscribe + POST). Dipasang di profil.
+- face/verify: deteksi borderline (lolos tapi jarak > threshold-0.1) -> log 'dicurigai' + push anomali ke admin instansi (non-blocking).
+- Build hijau; subscribe 401 tanpa auth. (Push penuh butuh deploy+HP+migration 0007.)
+
+**Keputusan baru:** Web Push tanpa cron reminder (batas Hobby); reminder terjadwal butuh cron eksternal bila kelak diinginkan.
+
+**Blocker:** user jalankan migration 0006 + 0007; uji push di HP setelah redeploy.
+
+**Next:** PDF laporan bulanan -> hardening (rate-limit verify/generate + scoping admin_unit) -> (opsional) reminder via cron eksternal.

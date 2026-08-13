@@ -9,7 +9,7 @@
 **Fase aktif:** Fase 3 — Google & Laporan (hampir selesai) → Fase 4
 **Sesi terakhir:** #12 (2026-08-10)
 
-> ⚠️ **Tindakan user:** jalankan `supabase/migrations/0006_sanggahan.sql` (tabel sanggahan) sebelum tes fitur Izin & Sanggahan. Bucket Storage 'sanggahan' sudah dibuat.
+> ⚠️ **Tindakan user:** jalankan **`0006_sanggahan.sql`** (tabel sanggahan) & **`0007_push_subscription.sql`** (langganan push) di SQL Editor. Bucket Storage 'sanggahan' sudah dibuat.
 
 > ℹ️ Saat deploy Vercel: tambahkan **semua** env dari `.env.local` termasuk `CRON_SECRET`
 > (Vercel Cron otomatis kirim `Authorization: Bearer $CRON_SECRET`). Cron sudah di `vercel.json`.
@@ -78,8 +78,8 @@
 - ☑ `POST /api/face/verify` (server-side decision) → `face_session_token` — teruji: pgvector roundtrip (self-dist 0), 401 tanpa login
 - ☑ Langkah **/absensi/wajah** sebelum scan; scan kirim face token; `presensi/verify` gating bila enrolled
 - ☑ Liveness challenge dasar: kedip 2× + menoleh (EAR/yaw dari landmark) sebelum capture descriptor
-- ☐ Modul Audit Log admin (dari presensi_verifikasi_log)
-- ☐ Notifikasi anomali ke admin
+- ☑ Modul Audit Log admin (dari presensi_verifikasi_log)
+- ☑ **Web Push** (real-time): langganan (`/api/push/subscribe` + toggle di profil) + handler SW; **notif anomali wajah ke admin** saat skor mepet (log 'dicurigai'). Tanpa reminder terjadwal (Hobby). Migration 0007. Uji butuh deploy+HP.
 ## Fase 3 — Google & Laporan — ◐
 - ☑ Modul **Audit Log** admin (presensi_verifikasi_log, filter hasil/tipe, 100 terbaru)
 - ☑ **Ekspor Sheets** (`lib/google-sheets.ts` + /admin/laporan): rekap bulanan semua pegawai → tab per bulan — **teruji ke spreadsheet "Rekap QRensi"**

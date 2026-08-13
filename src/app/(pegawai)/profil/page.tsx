@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ScanFace, Bell, LogOut, ChevronRight, FileText } from "lucide-react";
+import { ScanFace, LogOut, ChevronRight, FileText } from "lucide-react";
+import { NotifToggle } from "@/components/notif-toggle";
 
 const menu = [
   { label: "Izin & Sanggahan", desc: "Ajukan izin/sakit/cuti/dinas", icon: FileText, href: "/izin" },
   { label: "Enrollment wajah", desc: "Daftarkan / perbarui wajah", icon: ScanFace, href: null },
-  { label: "Notifikasi", desc: "Pengingat sebelum sesi tutup", icon: Bell, href: null },
 ];
 
 export default function ProfilPage() {
@@ -45,6 +45,7 @@ export default function ProfilPage() {
             <button key={m.label} className={cls}>{inner}</button>
           );
         })}
+        <NotifToggle />
         <form action="/logout" method="post">
           <button className="pressable flex w-full items-center gap-3 rounded-2xl bg-danger-soft p-4 text-left text-danger">
             <div className="grid size-10 place-items-center rounded-xl bg-danger/10">
