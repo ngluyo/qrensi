@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/auth";
+import { scopeUnits } from "@/lib/izin";
 import { createAdminClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -34,10 +35,24 @@ const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "muted"> = 
 export default async function SanggahanPage() {
   const user = await requireAdmin();
   const db = createAdminClient();
-  const { data } = await db
+  const lingkup = scopeUnits(user);
+
+  // Admin OPD: batasi ke pegawai unitnya.
+  let pegawaiIds: string[] | null = null;
+  if (lingkup) {
+    const { data: peg } = await db
+      .from("pegawai")
+      .select("id")
+      .in("unit_kerja_id", lingkup.length ? lingkup : ["-"]);
+    pegawaiIds = (peg ?? []).map((p) => p.id as string);
+  }
+
+  let q = db
     .from("sanggahan")
     .select("id, jenis, tanggal, alasan, status, catatan_admin, lampiran_path, created_at, pegawai(nama)")
-    .eq("instansi_id", user.instansiId)
+    .eq("instansi_id", user.instansiId);
+  if (pegawaiIds) q = q.in("pegawai_id", pegawaiIds.length ? pegawaiIds : ["00000000-0000-0000-0000-000000000000"]);
+  const { data } = await q
     .order("status", { ascending: true }) // pending dulu (alfabet: disetujui<ditolak<pending? -> urut manual di bawah)
     .order("created_at", { ascending: false })
     .limit(100);

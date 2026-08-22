@@ -322,3 +322,19 @@
 **Blocker:** user perlu jalankan migrasi 0008.
 
 **Next:** Tahap 3 — onboarding pegawai, riwayat interaktif (detail per hari), skeleton/empty state, install prompt PWA.
+
+---
+
+## Sesi #18 — 2026-08-22
+**Tujuan:** Tahap 3 (pengalaman pegawai) + Tahap 4 (integritas data) + sebagian Tahap 6.
+
+**Yang dikerjakan:**
+- Tahap 3: komponen BottomSheet (drag-to-dismiss, safe-area); riwayat interaktif (ketuk tanggal -> rincian jam aktual vs jadwal per sesi, via server action detailHari + getDetailHari); kartu Onboarding (password/wajah/notifikasi, status notif dideteksi klien agar kartu bisa hilang); InstallPrompt PWA + panduan iOS; skeleton loading 6 rute; halaman not-found & error kustom.
+- Tahap 4: migrasi 0009 (status izin/sakit/cuti/dinas_luar, presensi.sanggahan_id, tabel audit_admin); lib/terapkan-izin.ts (approve izin -> update/insert presensi; TIDAK menimpa tepat_waktu/terlambat); lib/audit.ts; reviewSanggahan kini ber-scoping unit + menerapkan izin + mencatat audit; daftar sanggahan difilter unit untuk Admin OPD; STATUS_META diperluas.
+- Tahap 4.4: tests/logika.test.mjs + script `npm test` -> 20/20 lulus (state machine jam kerja, potongan berjenjang & celah aturan, aturan timpa izin, matriks peran).
+- Tahap 6.2/6.3: security headers di next.config (Permissions-Policy camera=(self) agar kamera sendiri tetap jalan; /sw.js no-cache) — diverifikasi via curl; halaman 404/error.
+- Build hijau.
+
+**Blocker:** user perlu jalankan migrasi 0009.
+
+**Next:** Tahap 5 (dashboard admin, laporan per pegawai/unit, filter periode); sisa 6.1 (Upstash), 6.4 (load test), 6.5 (TWA/APK), 6.6 (dokumen serah terima).

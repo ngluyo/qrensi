@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { toZonedTime } from "date-fns-tz";
+import { format } from "date-fns";
 import { toMinutes } from "@/lib/jam-kerja";
 import { waktuInstansi } from "@/lib/sesi";
 import type { StatusKey } from "@/lib/status-presensi";
@@ -72,6 +74,57 @@ export async function getSesiHariIni(
   });
 
   return { sesi, tanggal: w.tanggal };
+}
+
+export interface DetailHari {
+  jenis: string;
+  nama: string;
+  status: StatusKey;
+  menit: number;
+  jam: string | null; // waktu absen aktual "HH:mm"
+  jadwal: string; // "07:15 – 07:45"
+}
+
+const NAMA_SESI: Record<string, string> = { masuk: "Masuk", istirahat: "Istirahat", pulang: "Pulang" };
+
+/** Rincian presensi satu tanggal untuk seorang pegawai (untuk bottom sheet riwayat). */
+export async function getDetailHari(
+  db: SupabaseClient,
+  pegawaiId: string,
+  tanggal: string,
+  tz: string,
+): Promise<DetailHari[]> {
+  const { data } = await db
+    .from("presensi")
+    .select(
+      "status, menit_keterlambatan, waktu_absen, sesi_absensi_harian!inner(tanggal, jam_kerja_sesi(jenis_sesi, jam_buka, jam_tutup, urutan))",
+    )
+    .eq("pegawai_id", pegawaiId)
+    .eq("sesi_absensi_harian.tanggal", tanggal);
+
+  const rows = (data ?? []).map((p) => {
+    const jk = (p.sesi_absensi_harian as unknown as {
+      jam_kerja_sesi: { jenis_sesi: string; jam_buka: string; jam_tutup: string; urutan: number } | null;
+    }).jam_kerja_sesi;
+    const waktu = p.waktu_absen as string | null;
+    let jam: string | null = null;
+    if (waktu) {
+      const z = toZonedTime(new Date(waktu), tz);
+      jam = format(z, "HH:mm");
+    }
+    return {
+      jenis: jk?.jenis_sesi ?? "-",
+      nama: NAMA_SESI[jk?.jenis_sesi ?? ""] ?? (jk?.jenis_sesi ?? "-"),
+      status: p.status as StatusKey,
+      menit: (p.menit_keterlambatan as number) ?? 0,
+      jam,
+      jadwal: jk ? `${jk.jam_buka.slice(0, 5)} – ${jk.jam_tutup.slice(0, 5)}` : "-",
+      urutan: jk?.urutan ?? 99,
+    };
+  });
+
+  rows.sort((a, b) => a.urutan - b.urutan);
+  return rows.map(({ urutan: _urutan, ...r }) => r);
 }
 
 export interface RekapBulan {

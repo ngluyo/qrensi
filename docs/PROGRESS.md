@@ -7,7 +7,7 @@
 
 ## Status Global
 **Mode:** Restrukturisasi terarah (ADR-0019) — fondasi dipertahankan, lapisan aplikasi dirombak.
-**Tahap aktif:** **Tahap 3 — Pengalaman Pegawai** (Tahap 1 & 2 selesai)
+**Tahap aktif:** **Tahap 5 — Dashboard & Laporan** (Tahap 1–4 selesai; 6.2/6.3 ikut selesai)
 **Produksi:** `qrensi.vercel.app` (tertinggal di commit `8f93ba0`)
 
 > ✅ Blokir push & deploy **teratasi**: kredensial GitHub diperbarui user; author commit
@@ -51,20 +51,20 @@
   data kepegawaian read-only (hanya admin) — migrasi **0008**
 - ☑ Menu admin difilter peran; halaman & action konfigurasi digating `assertCan` (13/13 uji lulus)
 
-## Tahap 3 — Pengalaman Pegawai (mobile-native)
-- ☐ 3.1 Onboarding pertama (password → wajah → notifikasi)
-- ☐ 3.2 Alur absensi disempurnakan (error ramah + retry)
-- ☐ 3.3 Riwayat interaktif (detail per hari)
-- ☐ 3.4 Self-service profil
-- ☐ 3.5 Skeleton/empty/error konsisten
-- ☐ 3.6 Install prompt PWA + panduan iOS
+## Tahap 3 — Pengalaman Pegawai (mobile-native) ✅
+- ☑ 3.1 Onboarding pertama (kartu langkah: password → wajah → notifikasi, progres, auto-hilang)
+- ☑ 3.2 Alur absensi: pesan error ramah + retry (termasuk `rate_limited`, `wajah_belum`, `masuk_belum`)
+- ☑ 3.3 Riwayat interaktif: ketuk tanggal → **bottom sheet** rincian (jam aktual vs jadwal per sesi)
+- ☑ 3.4 Self-service profil (Tahap 2)
+- ☑ 3.5 Skeleton loading (beranda/riwayat/profil/pegawai/sanggahan/audit) + halaman 404 & error kustom
+- ☑ 3.6 Install prompt PWA + panduan khusus iOS
 
 ## Tahap 4 — Integritas Data & Kepatuhan
-- ☐ 4.1 Sanggahan disetujui → ubah status presensi
-- ☐ 4.2 Status `izin`/`sakit`/`cuti`/`dinas_luar` (migrasi)
-- ☐ 4.3 Audit log aksi admin
-- ☐ 4.4 Unit test logika kritis
-- ☐ 4.5 `database.types.ts`
+- ☑ 4.1 Sanggahan disetujui → **menerapkan** status ke presensi (`lib/terapkan-izin.ts`); kehadiran faktual tidak ditimpa
+- ☑ 4.2 Status `izin`/`sakit`/`cuti`/`dinas_luar` (migrasi **0009**) + label/warna di UI
+- ☑ 4.3 Audit log aksi admin (`audit_admin` + `lib/audit.ts`), dipakai pada review sanggahan
+- ☑ 4.4 **Unit test** logika kritis — `npm test` → **20/20 lulus**
+- ☐ 4.5 `database.types.ts` (opsional; cast manual masih dipakai)
 
 ## Tahap 5 — Dashboard & Laporan Lanjutan
 - ☐ 5.1 Dashboard admin (tren, top telat, pola)
@@ -73,8 +73,8 @@
 
 ## Tahap 6 — Pengerasan & Rilis
 - ☐ 6.1 Rate limit persisten (Upstash)
-- ☐ 6.2 Security headers
-- ☐ 6.3 Halaman 404/error kustom
+- ☑ 6.2 Security headers (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy `camera=(self)`, no-cache `/sw.js`) — **terverifikasi**
+- ☑ 6.3 Halaman 404/error kustom
 - ☐ 6.4 Uji beban
 - ☐ 6.5 TWA/Bubblewrap → APK Android
 - ☐ 6.6 Dokumen serah terima
@@ -85,7 +85,7 @@
 Skema DB & migrasi 0001–0007 · klaim token atomik (1-dari-2) · rotasi QR · state machine jam kerja · potongan · cron tutup sesi · ekspor Sheets · backup Drive OAuth · device binding kiosk · face verify + liveness · design system "Laut" · PWA + push.
 
 ## Menunggu User
-- ⚠️ Jalankan **`supabase/migrations/0008_data_pribadi_pegawai.sql`** (kolom no_hp/email_kontak/alamat) agar edit profil pegawai berfungsi
+- ⚠️ Jalankan **`supabase/migrations/0009_status_izin_presensi.sql`** — status izin/sakit/cuti/dinas_luar, kolom `presensi.sanggahan_id`, tabel `audit_admin`. Tanpa ini, approve izin tidak mengubah presensi.
 - ⛔ **Akses push GitHub** (repo ada? kredensial?) — memblokir semua deploy
 - ☐ Jalankan migrasi **0006** (sanggahan) & **0007** (push) bila belum
 - ☐ Keputusan: kebijakan enrollment wajah (admin-only vs self-service terpandu)

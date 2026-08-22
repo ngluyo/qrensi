@@ -9,6 +9,10 @@ export type StatusKey =
   | "ditolak_lokasi"
   | "ditolak_wajah"
   | "ditolak_di_luar_jendela"
+  | "izin"
+  | "sakit"
+  | "cuti"
+  | "dinas_luar"
   | "belum";
 
 export const STATUS_META: Record<
@@ -20,6 +24,10 @@ export const STATUS_META: Record<
   pulang_cepat: { label: "Pulang cepat", tone: "warning" },
   tidak_ada_di_kantor: { label: "Tidak di kantor", tone: "info" },
   tidak_hadir: { label: "Alpa", tone: "danger" },
+  izin: { label: "Izin", tone: "info" },
+  sakit: { label: "Sakit", tone: "info" },
+  cuti: { label: "Cuti", tone: "info" },
+  dinas_luar: { label: "Dinas luar", tone: "info" },
   ditolak_lokasi: { label: "Ditolak · lokasi", tone: "danger" },
   ditolak_wajah: { label: "Ditolak · wajah", tone: "danger" },
   ditolak_di_luar_jendela: { label: "Di luar jendela", tone: "danger" },
