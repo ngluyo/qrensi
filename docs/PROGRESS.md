@@ -7,7 +7,7 @@
 
 ## Status Global
 **Mode:** Restrukturisasi terarah (ADR-0019) — fondasi dipertahankan, lapisan aplikasi dirombak.
-**Tahap aktif:** **Tahap 5 — Dashboard & Laporan** (Tahap 1–4 selesai; 6.2/6.3 ikut selesai)
+**Tahap aktif:** **Tahap 5–6 (sisa)** — Tahap 1–4 selesai; 5.1, 6.2, 6.3 selesai
 **Produksi:** `qrensi.vercel.app` (tertinggal di commit `8f93ba0`)
 
 > ✅ Blokir push & deploy **teratasi**: kredensial GitHub diperbarui user; author commit
@@ -67,7 +67,8 @@
 - ☐ 4.5 `database.types.ts` (opsional; cast manual masih dipakai)
 
 ## Tahap 5 — Dashboard & Laporan Lanjutan
-- ☐ 5.1 Dashboard admin (tren, top telat, pola)
+- ☑ 5.1 Dashboard admin: % kehadiran hari ini, statistik (aktif/hadir/telat/belum), "perlu tindakan"
+  (izin pending, belum enroll), aktivitas terbaru — semua **discope per unit** untuk Admin OPD
 - ☐ 5.2 Laporan per pegawai/unit (PDF)
 - ☐ 5.3 Filter periode bebas
 

@@ -338,3 +338,20 @@
 **Blocker:** user perlu jalankan migrasi 0009.
 
 **Next:** Tahap 5 (dashboard admin, laporan per pegawai/unit, filter periode); sisa 6.1 (Upstash), 6.4 (load test), 6.5 (TWA/APK), 6.6 (dokumen serah terima).
+
+---
+
+## Sesi #19 — 2026-08-22
+**Tujuan:** Tahap 5.1 — dashboard admin berbasis data nyata.
+
+**Yang dikerjakan:**
+- /admin dirombak jadi dashboard operasional: persentase kehadiran hari ini (bar progres),
+  4 statistik (pegawai aktif, hadir, terlambat, belum absen), panel "Perlu tindakan"
+  (izin pending, pegawai belum enroll wajah), dan feed aktivitas presensi hari ini.
+- Semua query discope `scopeUnits` sehingga Admin OPD hanya melihat unitnya.
+- Build hijau; smoke test rute utama sehat (proteksi 307 utk rute privat).
+
+**Blocker:** migrasi 0009 masih perlu dijalankan user.
+
+**Next:** 5.2 laporan per pegawai/unit, 5.3 filter periode; 6.1 Upstash, 6.4 load test,
+6.5 TWA/APK, 6.6 dokumen serah terima.
