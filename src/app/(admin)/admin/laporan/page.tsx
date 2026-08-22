@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import { eksporSheets, backupDrive, type EksporState } from "./actions";
-import { FileSpreadsheet, Loader2, ExternalLink, CheckCircle2, HardDriveUpload } from "lucide-react";
+import Link from "next/link";
+import { FileSpreadsheet, Loader2, ExternalLink, CheckCircle2, HardDriveUpload, Printer } from "lucide-react";
 
 const init: EksporState = { ok: false };
 
@@ -95,6 +96,22 @@ export default function LaporanPage() {
           <p className="rounded-xl bg-danger-soft p-3 text-sm font-medium text-danger">{driveState.message}</p>
         )}
       </div>
+
+      {/* Cetak PDF */}
+      <Link
+        href="/laporan-cetak"
+        target="_blank"
+        className="pressable flex items-center gap-3 rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-sm)]"
+      >
+        <div className="grid size-12 place-items-center rounded-xl bg-brand-soft text-brand">
+          <Printer className="size-6" />
+        </div>
+        <div className="flex-1">
+          <div className="font-bold">Laporan siap cetak (PDF)</div>
+          <div className="text-xs text-muted">Buka halaman cetak → Simpan sebagai PDF dari browser.</div>
+        </div>
+        <ExternalLink className="size-4 text-muted" />
+      </Link>
 
       <p className="text-xs text-muted">
         Sheets butuh spreadsheet di-share ke service account (Editor). Drive butuh OAuth

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { hashDeviceSecret } from "@/lib/kiosk-auth";
 import { generateToken } from "@/lib/qr-token";
 import { waktuInstansi, adaSesiTerbukaInstansi, pastikanSesiHarian } from "@/lib/sesi";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ROTATE_MS = 60 * 1000; // paksa rotasi tiap 60 detik meski belum diklaim
 
@@ -16,6 +17,10 @@ export async function POST(req: Request) {
   const secret = String(body.device_secret || "");
   const instanceId = String(body.device_instance_id || "");
   if (!secret) return NextResponse.json({ error: "no_secret" }, { status: 400 });
+
+  // Rate limit per secret: 40/menit (kiosk polling ~20/menit → longgar).
+  const rl = rateLimit(`gen:${hashDeviceSecret(secret)}`, 40, 60_000);
+  if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429, headers: { "Retry-After": String(rl.retryAfter) } });
 
   const db = createAdminClient();
   const { data: kiosk } = await db

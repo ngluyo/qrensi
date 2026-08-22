@@ -2,8 +2,12 @@ import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { EnrollmentClient } from "./enrollment-client";
 
-export default async function EnrollmentPage() {
+type SP = { [k: string]: string | string[] | undefined };
+
+export default async function EnrollmentPage({ searchParams }: { searchParams: Promise<SP> }) {
   const user = await requireAdmin();
+  const sp = await searchParams;
+  const preselect = (sp.pegawai as string) || "";
   const db = createAdminClient();
 
   const [{ data: pegawai }, { data: enrolled }] = await Promise.all([
@@ -19,5 +23,5 @@ export default async function EnrollmentPage() {
     enrolled: enrolledSet.has(p.id as string),
   }));
 
-  return <EnrollmentClient pegawai={list} />;
+  return <EnrollmentClient pegawai={list} preselect={preselect} />;
 }

@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { verifyToken } from "@/lib/qr-token";
 import { verifyFaceToken } from "@/lib/face-token";
 import { waktuInstansi, cariSesiTerbukaPola, pastikanSesiHarian } from "@/lib/sesi";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 /**
  * Verifikasi presensi (blueprint §5.2). Fase 1: tanpa face_session_token
@@ -10,6 +11,12 @@ import { waktuInstansi, cariSesiTerbukaPola, pastikanSesiHarian } from "@/lib/se
  * per-pegawai + simpan presensi.
  */
 export async function POST(req: Request) {
+  // Rate limit: 10 percobaan/menit/IP (blueprint §11.2).
+  const rl = rateLimit(`verify:${clientIp(req)}`, 10, 60_000);
+  if (!rl.ok) {
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429, headers: { "Retry-After": String(rl.retryAfter) } });
+  }
+
   // 1. Autentikasi pegawai (sesi login).
   const supabase = await createClient();
   const {

@@ -18,11 +18,63 @@ async function getApi(): Promise<FaceApi> {
 export async function loadFaceModels(): Promise<void> {
   if (loaded) return;
   const faceapi = await getApi();
+
+  // Inisialisasi backend TF eksplisit; bila WebGL gagal, jatuh ke CPU/WASM.
+  // (ADR-0020 — kegagalan backend dulu membuat kamera tak pernah diminta.)
+  try {
+    const tf = faceapi.tf as unknown as {
+      setBackend?: (b: string) => Promise<boolean>;
+      ready?: () => Promise<void>;
+      getBackend?: () => string;
+    };
+    if (tf?.ready) {
+      await tf.ready();
+      if (!tf.getBackend?.()) {
+        await tf.setBackend?.("cpu");
+        await tf.ready();
+      }
+    }
+  } catch {
+    // Abaikan: face-api akan memilih backend sendiri.
+  }
+
   const URL = "/models";
   await faceapi.nets.tinyFaceDetector.loadFromUri(URL);
   await faceapi.nets.faceLandmark68Net.loadFromUri(URL);
   await faceapi.nets.faceRecognitionNet.loadFromUri(URL);
   loaded = true;
+}
+
+/**
+ * Minta akses kamera. HARUS dipanggil SEBELUM loadFaceModels() agar prompt izin
+ * langsung muncul walau pemuatan model kelak gagal (AUDIT A3 / ADR-0020).
+ * `facingMode` hanya preferensi (ideal) supaya webcam PC tetap terpakai.
+ */
+export async function requestCamera(prefer: "user" | "environment" = "user"): Promise<MediaStream> {
+  if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+    throw new Error("Browser ini tidak mendukung akses kamera.");
+  }
+  return navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: prefer }, width: { ideal: 640 }, height: { ideal: 480 } },
+    audio: false,
+  });
+}
+
+/** Ubah error kamera jadi pesan berbahasa Indonesia yang bisa ditindaklanjuti. */
+export function pesanErrorKamera(e: unknown): string {
+  const name = (e as { name?: string })?.name ?? "";
+  switch (name) {
+    case "NotAllowedError":
+    case "SecurityError":
+      return "Izin kamera ditolak. Klik ikon gembok di address bar → izinkan Kamera → muat ulang.";
+    case "NotFoundError":
+    case "OverconstrainedError":
+      return "Kamera tidak ditemukan di perangkat ini.";
+    case "NotReadableError":
+      return "Kamera sedang dipakai aplikasi lain. Tutup aplikasi itu lalu coba lagi.";
+    default:
+      return "Kamera gagal dibuka: " + ((e as Error)?.message ?? "penyebab tidak diketahui");
+  }
 }
 
 function dist(a: { x: number; y: number }, b: { x: number; y: number }) {

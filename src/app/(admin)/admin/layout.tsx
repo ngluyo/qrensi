@@ -37,12 +37,20 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             QRensi Admin
           </Link>
         </div>
-        <div className="mb-4 rounded-xl bg-surface p-3 shadow-[var(--shadow-sm)]">
-          <div className="truncate text-sm font-semibold">{user.nama ?? user.email}</div>
-          <div className="text-xs capitalize text-muted">
-            {user.peran === "super_admin" ? "Super Admin" : "Admin Unit"}
+        <Link
+          href="/admin/akun"
+          className="pressable mb-4 flex items-center gap-2 rounded-xl bg-surface p-3 shadow-[var(--shadow-sm)]"
+        >
+          <div className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-bold text-brand">
+            {(user.nama ?? user.email ?? "A").charAt(0).toUpperCase()}
           </div>
-        </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold">{user.nama ?? user.email}</div>
+            <div className="text-xs capitalize text-muted">
+              {user.peran === "super_admin" ? "Super Admin" : "Admin Unit"}
+            </div>
+          </div>
+        </Link>
         <nav className="grid grid-cols-2 gap-2 md:grid-cols-1">
           {menu.map(({ href, label, icon: Icon }) => (
             <Link

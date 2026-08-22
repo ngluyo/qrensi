@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { loadFaceModels, getDescriptor } from "@/lib/face";
+import { loadFaceModels, getDescriptor, requestCamera, pesanErrorKamera } from "@/lib/face";
 import { ScanFace, Check, Loader2, Camera } from "lucide-react";
 
 interface Pegawai {
@@ -14,11 +14,11 @@ interface Pegawai {
 
 type Phase = "idle" | "loading-model" | "ready" | "capturing" | "saving" | "done" | "error";
 
-export function EnrollmentClient({ pegawai }: { pegawai: Pegawai[] }) {
+export function EnrollmentClient({ pegawai, preselect = "" }: { pegawai: Pegawai[]; preselect?: string }) {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const [pegawaiId, setPegawaiId] = useState("");
+  const [pegawaiId, setPegawaiId] = useState(preselect);
   const [phase, setPhase] = useState<Phase>("idle");
   const [msg, setMsg] = useState("");
 
@@ -29,21 +29,32 @@ export function EnrollmentClient({ pegawai }: { pegawai: Pegawai[] }) {
   }, []);
 
   async function startCamera() {
+    // 1) Minta kamera DULU agar prompt izin pasti muncul (ADR-0020).
     setPhase("loading-model");
-    setMsg("Memuat model wajah…");
+    setMsg("Meminta izin kamera…");
+    let stream: MediaStream;
     try {
-      await loadFaceModels();
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+      stream = await requestCamera("user");
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
+    } catch (e) {
+      setPhase("error");
+      setMsg(pesanErrorKamera(e));
+      return;
+    }
+
+    // 2) Baru muat model wajah.
+    setMsg("Memuat model wajah…");
+    try {
+      await loadFaceModels();
       setPhase("ready");
       setMsg("");
-    } catch {
+    } catch (e) {
       setPhase("error");
-      setMsg("Gagal memuat model / kamera. Izinkan akses kamera.");
+      setMsg("Model wajah gagal dimuat: " + ((e as Error)?.message ?? "tidak diketahui"));
     }
   }
 

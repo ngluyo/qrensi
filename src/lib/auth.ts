@@ -11,6 +11,7 @@ export interface SesiUser {
   instansiId: string | null;
   peran: Peran | null; // null = pegawai biasa (bukan admin)
   unitKerjaIds: string[]; // unit yang diampu (untuk admin_unit)
+  mustChangePassword: boolean; // wajib ganti password (kredensial sekali pakai)
 }
 
 /** Ambil user login + profil + peran. null jika belum login. */
@@ -50,6 +51,7 @@ export async function getSesiUser(): Promise<SesiUser | null> {
     instansiId: peg?.instansi_id ?? null,
     peran,
     unitKerjaIds: roles?.map((r) => r.unit_kerja_id).filter(Boolean) ?? [],
+    mustChangePassword: user.user_metadata?.must_change_password === true,
   };
 }
 
@@ -57,6 +59,7 @@ export async function getSesiUser(): Promise<SesiUser | null> {
 export async function requireAdmin(): Promise<SesiUser> {
   const u = await getSesiUser();
   if (!u) redirect("/login?next=/admin");
+  if (u.mustChangePassword) redirect("/ganti-password");
   if (!u.peran) redirect("/login?error=bukan_admin");
   return u;
 }
@@ -65,5 +68,13 @@ export async function requireAdmin(): Promise<SesiUser> {
 export async function requireUser(next = "/beranda"): Promise<SesiUser> {
   const u = await getSesiUser();
   if (!u) redirect(`/login?next=${encodeURIComponent(next)}`);
+  if (u.mustChangePassword) redirect("/ganti-password");
+  return u;
+}
+
+/** Hanya super admin. */
+export async function requireSuperAdmin(): Promise<SesiUser> {
+  const u = await requireAdmin();
+  if (u.peran !== "super_admin") redirect("/admin?error=butuh_super_admin");
   return u;
 }

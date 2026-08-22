@@ -242,3 +242,45 @@
 **Blocker:** user jalankan migration 0006 + 0007; uji push di HP setelah redeploy.
 
 **Next:** PDF laporan bulanan -> hardening (rate-limit verify/generate + scoping admin_unit) -> (opsional) reminder via cron eksternal.
+
+---
+
+## Sesi #14 — 2026-08-10
+**Tujuan:** Tuntaskan hingga siap: alur password (temuan user), PDF laporan, hardening. Satu commit.
+
+**Yang dikerjakan:**
+- Paksa ganti password login pertama: must_change_password (user_metadata) + guard redirect /ganti-password + halaman & form ganti-password. buatAkunPegawai set flag. (ADR-0018)
+- Reset password pegawai oleh admin (resetPasswordPegawai) + kartu di /admin/pegawai (password sementara sekali tampil). Teruji lifecycle penuh via API.
+- PDF: /laporan-cetak (print-to-PDF, kop+tabel+total+ttd) + link di /admin/laporan.
+- Hardening: lib/rate-limit.ts; verify 10/mnt/IP; generate 40/mnt/secret. requireSuperAdmin tersedia.
+- Build hijau.
+
+**Keputusan baru:** ADR-0018 (paksa ganti password + reset admin).
+
+**Blocker:** user jalankan migration 0006 + 0007 lalu redeploy. Scoping admin_unit = utang teknis (moot untuk pilot).
+
+**Next (opsional):** rate-limit Upstash, scoping admin_unit, load test, reminder cron eksternal.
+
+---
+
+## Sesi #15 — 2026-08-22
+**Tujuan:** Riset menyeluruh + audit + masterplan pembangunan ulang; mulai Tahap 1 (P0).
+
+**Riset:** studi banding aplikasi absensi (Talenta/Gadjian/Hadirr/Jibble/Truein/Zimyo), pola UX admin list, panduan PWA resmi Next.js 16, PWA vs Capacitor vs TWA, penyebab getUserMedia tak prompt, RLS multi-tenant. Ditulis ke docs/RESEARCH.md dengan sumber.
+
+**Audit (docs/AUDIT.md) — akar masalah TERBUKTI:**
+- A1 logout: NextResponse.redirect default 307 -> POST dipertahankan -> POST /login = 405 (dibuktikan di produksi).
+- A2 paksa ganti password tak ada di produksi: commit 54b9258 GAGAL push -> Vercel tak pernah build.
+- A3 kamera: loadFaceModels() dipanggil SEBELUM getUserMedia() di kedua halaman -> bila model/WebGL gagal, izin kamera tak pernah diminta. PC berkamera seharusnya bisa.
+- A4 modul pegawai: belum ada detail/edit/cari/filter (bukan kebocoran data; baru 1 instansi/2 unit/3 pegawai).
+- +14 temuan tambahan (B1-B14).
+
+**Dokumen baru:** AUDIT.md, RESEARCH.md, MASTERPLAN.md (Tahap 1-6 + DoD), QA_CHECKLIST.md; PROGRESS.md direstrukturisasi.
+
+**Keputusan:** ADR-0019 (restrukturisasi terarah, bukan tulis ulang), ADR-0020 (kamera: izin sebelum model), ADR-0021 (Android via TWA, bukan Capacitor).
+
+**Tahap 1 dikerjakan:** fix logout 303 (teruji: 303 -> /login 200), fix urutan kamera + fallback backend TF + pesan error ID, halaman /admin/akun (admin ganti password sendiri) + link ganti password di profil pegawai. Build hijau.
+
+**Blocker:** push GitHub masih gagal ("Repository not found") -> semua perbaikan belum sampai produksi.
+
+**Next:** selesaikan akses repo -> deploy -> user uji ulang -> Tahap 2 (rombak modul Pegawai).

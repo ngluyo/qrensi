@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ScanFace, Loader2, Check, X, Eye, RefreshCw } from "lucide-react";
-import { loadFaceModels, getDescriptor, getLandmarkMetrics } from "@/lib/face";
+import { loadFaceModels, getDescriptor, getLandmarkMetrics, requestCamera, pesanErrorKamera } from "@/lib/face";
 
 const FACE_LS = "qrensi_face_token";
 
@@ -48,19 +48,31 @@ export default function WajahPage() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // 1) Kamera DULU agar prompt izin pasti muncul (ADR-0020).
       try {
-        await loadFaceModels();
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        setMsg("Meminta izin kamera…");
+        const stream = await requestCamera("user");
         if (cancelled) return stream.getTracks().forEach((t) => t.stop());
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
         }
-        startChallenge();
-      } catch {
+      } catch (e) {
         setPhase("error");
-        setMsg("Kamera/model gagal dimuat. Izinkan akses kamera.");
+        setMsg(pesanErrorKamera(e));
+        return;
+      }
+
+      // 2) Baru muat model wajah.
+      try {
+        setMsg("Memuat model wajah…");
+        await loadFaceModels();
+        if (cancelled) return;
+        startChallenge();
+      } catch (e) {
+        setPhase("error");
+        setMsg("Model wajah gagal dimuat: " + ((e as Error)?.message ?? "tidak diketahui"));
       }
     })();
     return () => {

@@ -21,6 +21,7 @@ const ERROR_MSG: Record<string, string> = {
   di_luar_jendela: "Saat ini di luar jendela absensi.",
   masuk_belum: "Absen masuk pagi belum berhasil, jadi sesi ini terkunci hari ini.",
   wajah_belum: "Verifikasi wajah kedaluwarsa. Ulangi langkah verifikasi wajah.",
+  rate_limited: "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.",
   sudah_absen: "Kamu sudah absen untuk sesi ini.",
   unauthorized: "Sesi login habis. Silakan masuk lagi.",
   bukan_pegawai: "Akun ini belum terdaftar sebagai pegawai.",

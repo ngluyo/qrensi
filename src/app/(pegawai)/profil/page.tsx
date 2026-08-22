@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ScanFace, LogOut, ChevronRight, FileText } from "lucide-react";
+import { ScanFace, LogOut, ChevronRight, FileText, KeyRound } from "lucide-react";
 import { NotifToggle } from "@/components/notif-toggle";
 
 const menu = [
   { label: "Izin & Sanggahan", desc: "Ajukan izin/sakit/cuti/dinas", icon: FileText, href: "/izin" },
+  { label: "Ganti kata sandi", desc: "Perbarui kata sandi akun", icon: KeyRound, href: "/ganti-password" },
   { label: "Enrollment wajah", desc: "Daftarkan / perbarui wajah", icon: ScanFace, href: null },
 ];
 

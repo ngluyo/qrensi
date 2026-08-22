@@ -25,6 +25,26 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0021 — Android via TWA (Bubblewrap), bukan Capacitor
+- **Tanggal:** 2026-08-22
+- **Keputusan:** Bila dibutuhkan APK/Play Store, bungkus PWA live dengan **TWA/Bubblewrap** + `assetlinks.json`. Capacitor **ditolak**.
+- **Alasan:** Capacitor butuh **static export** untuk aset web, sedangkan QRensi memakai Server Actions + API routes + SSR → static export mematahkan arsitektur (riset RESEARCH.md §3). TWA memakai kode yang sama persis, tanpa perubahan.
+
+### ADR-0020 — Kamera: minta izin SEBELUM memuat model wajah
+- **Tanggal:** 2026-08-22
+- **Keputusan:** Urutan wajib: `getUserMedia()` **dulu** (prompt izin langsung muncul) → baru `loadFaceModels()`. Tambah init backend TF eksplisit + fallback WASM, tampilkan pesan error asli, `facingMode` sebagai preferensi (`ideal`) bukan paksaan.
+- **Alasan:** Bug A3 — memuat model lebih dulu membuat `getUserMedia` tak pernah dipanggil saat model/WebGL gagal, sehingga prompt izin tak pernah muncul dan user mengira kamera PC tak didukung.
+
+### ADR-0019 — Restrukturisasi terarah, BUKAN tulis ulang dari nol
+- **Tanggal:** 2026-08-22
+- **Keputusan:** Pertahankan fondasi teruji (skema DB & migrasi, klaim token atomik, rotasi QR, state machine jam kerja, perhitungan potongan, cron, integrasi Sheets/Drive, design system, PWA). **Rombak total** lapisan aplikasi: modul Pegawai, alur akun/password, alur kamera, IA/navigasi. Dipandu `MASTERPLAN.md` bertahap.
+- **Alasan:** Audit membuktikan fondasi bekerja nyata (klaim atomik 1-dari-2, ekspor/backup Google, cron menandai tidak_hadir). Akar masalah ada di lapisan aplikasi & satu deploy tertinggal — bukan di arsitektur. Menulis ulang membuang aset teruji dan mengulang risiko tanpa menyentuh akar masalah.
+
+### ADR-0018 — Paksa ganti password sekali-pakai + reset oleh admin
+- **Tanggal:** 2026-08-10
+- **Keputusan:** Akun buatan admin diberi `user_metadata.must_change_password=true`. Guard `requireUser`/`requireAdmin` mengalihkan ke `/ganti-password` sampai pegawai mengganti (client `updateUser({password, data:{must_change_password:false}})`). Admin punya tombol "Reset kata sandi" (set password sementara baru + flag true).
+- **Alasan:** Password sementara sekali pakai; tanpa paksaan ganti, pegawai yang lupa mengganti bisa terkunci. Reset admin mengatasi lupa password (temuan user). Verifikasi lifecycle penuh: buat→true, ganti→false+login baru OK, reset→true.
+
 ### ADR-0017 — Backup Drive via OAuth (bukan service account) untuk Drive personal
 - **Tanggal:** 2026-08-10
 - **Keputusan:** Backup CSV ke Google Drive pakai **OAuth refresh token** (GOOGLE_CLIENT_ID/SECRET/REFRESH_TOKEN), bertindak sebagai akun pemilik; scope `drive.file`; app buat/temukan folder "QRensi Backup" sendiri. Sheets tetap pakai service account (edit file existing = tak makan kuota).

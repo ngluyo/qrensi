@@ -168,12 +168,40 @@ export async function buatAkunPegawai(
     email,
     password,
     email_confirm: true,
+    user_metadata: { must_change_password: true },
   });
   if (error) return { ok: false, message: error.message };
 
   await db.from("pegawai").update({ auth_user_id: created.user.id }).eq("id", peg.id);
   revalidatePath("/admin/pegawai");
   return { ok: true, email, password };
+}
+
+export async function resetPasswordPegawai(
+  _prev: AkunState,
+  formData: FormData,
+): Promise<AkunState> {
+  await requireAdmin();
+  const pegawaiId = String(formData.get("pegawai_id") || "");
+  if (!pegawaiId) return { ok: false, message: "Pilih pegawai dulu." };
+
+  const db = createAdminClient();
+  const { data: peg } = await db
+    .from("pegawai")
+    .select("auth_user_id")
+    .eq("id", pegawaiId)
+    .maybeSingle();
+  if (!peg?.auth_user_id) return { ok: false, message: "Pegawai ini belum punya akun login." };
+
+  const password = "Qrensi!" + randomBytes(4).toString("hex");
+  const { data: updated, error } = await db.auth.admin.updateUserById(peg.auth_user_id, {
+    password,
+    user_metadata: { must_change_password: true },
+  });
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath("/admin/pegawai");
+  return { ok: true, email: updated.user.email ?? "", password };
 }
 
 // ---------- Pengaturan Potongan ----------
