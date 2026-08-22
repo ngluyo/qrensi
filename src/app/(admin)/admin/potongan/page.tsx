@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { createPotongan, deletePotongan } from "../actions";
 import { Trash2, Plus } from "lucide-react";
@@ -18,7 +18,7 @@ const JENIS_LABEL: Record<string, string> = {
 };
 
 export default async function PotonganPage() {
-  const user = await requireAdmin();
+  const user = await requireSuperAdmin();
   const db = createAdminClient();
   const { data } = await db
     .from("pengaturan_potongan")

@@ -10,20 +10,24 @@ import {
   ScanFace,
   FileSpreadsheet,
   FileText,
+  ShieldCheck,
   LogOut,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
+import { can, type Kemampuan } from "@/lib/izin";
 
-const menu = [
+// `perlu` = kemampuan minimum untuk melihat menu (undefined = semua admin).
+const menu: { href: string; label: string; icon: typeof Users; perlu?: Kemampuan }[] = [
   { href: "/admin/pegawai", label: "Pegawai", icon: Users },
   { href: "/admin/enrollment", label: "Enrollment", icon: ScanFace },
-  { href: "/admin/pola-hari-kerja", label: "Pola Hari Kerja", icon: CalendarRange },
-  { href: "/admin/jam-kerja", label: "Jam Kerja", icon: Clock },
-  { href: "/admin/kiosk", label: "Kiosk", icon: MonitorSmartphone },
   { href: "/admin/sanggahan", label: "Izin & Sanggahan", icon: FileText },
-  { href: "/admin/potongan", label: "Potongan", icon: Percent },
-  { href: "/admin/laporan", label: "Laporan", icon: FileSpreadsheet },
+  { href: "/admin/kiosk", label: "Kiosk", icon: MonitorSmartphone },
   { href: "/admin/audit-log", label: "Audit Log", icon: ScrollText },
+  { href: "/admin/pola-hari-kerja", label: "Pola Hari Kerja", icon: CalendarRange, perlu: "konfig.jam_kerja" },
+  { href: "/admin/jam-kerja", label: "Jam Kerja", icon: Clock, perlu: "konfig.jam_kerja" },
+  { href: "/admin/potongan", label: "Potongan", icon: Percent, perlu: "konfig.potongan" },
+  { href: "/admin/laporan", label: "Laporan", icon: FileSpreadsheet, perlu: "laporan.ekspor" },
+  { href: "/admin/pengguna", label: "Pengguna & Peran", icon: ShieldCheck, perlu: "peran.kelola" },
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
@@ -52,7 +56,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           </div>
         </Link>
         <nav className="grid grid-cols-2 gap-2 md:grid-cols-1">
-          {menu.map(({ href, label, icon: Icon }) => (
+          {menu
+            .filter((m) => !m.perlu || can(user, m.perlu))
+            .map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}

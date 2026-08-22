@@ -3,12 +3,14 @@
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
+import { assertCan } from "@/lib/izin";
 import { createAdminClient } from "@/lib/supabase/server";
 
 // ---------- Pola Hari Kerja ----------
 
 export async function createPola(formData: FormData) {
   const user = await requireAdmin();
+  assertCan(user, "konfig.jam_kerja");
   const nama = String(formData.get("nama") || "").trim();
   const hari = formData.getAll("hari").map((h) => Number(h)).filter((n) => n >= 1 && n <= 7);
   if (!nama || hari.length === 0) return;
@@ -23,7 +25,7 @@ export async function createPola(formData: FormData) {
 }
 
 export async function updatePola(formData: FormData) {
-  await requireAdmin();
+  assertCan(await requireAdmin(), "konfig.jam_kerja");
   const id = String(formData.get("id"));
   const nama = String(formData.get("nama") || "").trim();
   const hari = formData.getAll("hari").map((h) => Number(h)).filter((n) => n >= 1 && n <= 7);
@@ -38,7 +40,7 @@ export async function updatePola(formData: FormData) {
 }
 
 export async function deletePola(formData: FormData) {
-  await requireAdmin();
+  assertCan(await requireAdmin(), "konfig.jam_kerja");
   const id = String(formData.get("id"));
   const db = createAdminClient();
   await db.from("pola_hari_kerja").delete().eq("id", id);
@@ -54,7 +56,7 @@ function timeOrNull(v: FormDataEntryValue | null): string | null {
 }
 
 export async function updateJamSesi(formData: FormData) {
-  await requireAdmin();
+  assertCan(await requireAdmin(), "konfig.jam_kerja");
   const id = String(formData.get("id"));
   const jam_buka = timeOrNull(formData.get("jam_buka"));
   const jam_tutup = timeOrNull(formData.get("jam_tutup"));
@@ -77,6 +79,7 @@ export async function updateJamSesi(formData: FormData) {
 
 export async function createUnit(formData: FormData) {
   const user = await requireAdmin();
+  assertCan(user, "konfig.unit_kerja");
   const nama = String(formData.get("nama") || "").trim();
   if (!nama) return;
   const db = createAdminClient();
@@ -94,6 +97,8 @@ export async function createPegawai(formData: FormData) {
   const unit_kerja_id = String(formData.get("unit_kerja_id") || "");
   const pola_hari_kerja_id = String(formData.get("pola_hari_kerja_id") || "");
   if (!nama || !unit_kerja_id || !pola_hari_kerja_id) return;
+  // Admin OPD hanya boleh menambah pegawai di unit yang diampu.
+  assertCan(user, "pegawai.tambah", { unitKerjaId: unit_kerja_id });
 
   const db = createAdminClient();
   await db.from("pegawai").insert({
@@ -107,107 +112,11 @@ export async function createPegawai(formData: FormData) {
   revalidatePath("/admin/pegawai");
 }
 
-export async function updatePegawai(formData: FormData) {
-  await requireAdmin();
-  const id = String(formData.get("id"));
-  const unit_kerja_id = String(formData.get("unit_kerja_id") || "");
-  const pola_hari_kerja_id = String(formData.get("pola_hari_kerja_id") || "");
-  const status = String(formData.get("status_kepegawaian") || "aktif");
-  if (!id) return;
-  const db = createAdminClient();
-  await db
-    .from("pegawai")
-    .update({ unit_kerja_id, pola_hari_kerja_id, status_kepegawaian: status })
-    .eq("id", id);
-  revalidatePath("/admin/pegawai");
-}
-
-export async function deletePegawai(formData: FormData) {
-  await requireAdmin();
-  const id = String(formData.get("id"));
-  const db = createAdminClient();
-  await db.from("pegawai").delete().eq("id", id);
-  revalidatePath("/admin/pegawai");
-}
-
-// ---------- Akun login pegawai (admin buat + password sementara) ----------
-
-export interface AkunState {
-  ok: boolean;
-  message?: string;
-  email?: string;
-  password?: string; // ditampilkan SEKALI
-}
-
-export async function buatAkunPegawai(
-  _prev: AkunState,
-  formData: FormData,
-): Promise<AkunState> {
-  await requireAdmin();
-  const pegawaiId = String(formData.get("pegawai_id") || "");
-  let email = String(formData.get("email") || "").trim().toLowerCase();
-  if (!pegawaiId) return { ok: false, message: "Pilih pegawai dulu." };
-
-  const db = createAdminClient();
-  const { data: peg } = await db
-    .from("pegawai")
-    .select("id, nama, nip, auth_user_id")
-    .eq("id", pegawaiId)
-    .maybeSingle();
-  if (!peg) return { ok: false, message: "Pegawai tidak ditemukan." };
-  if (peg.auth_user_id) return { ok: false, message: "Pegawai ini sudah punya akun." };
-
-  // Tanpa email → pakai NIP sebagai identitas login: <nip>@qrensi.local
-  if (!email) {
-    if (!peg.nip) return { ok: false, message: "Isi email, atau lengkapi NIP pegawai lebih dulu." };
-    email = `${String(peg.nip).toLowerCase().replace(/\s+/g, "")}@qrensi.local`;
-  }
-
-  const password = "Qrensi!" + randomBytes(4).toString("hex");
-  const { data: created, error } = await db.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { must_change_password: true },
-  });
-  if (error) return { ok: false, message: error.message };
-
-  await db.from("pegawai").update({ auth_user_id: created.user.id }).eq("id", peg.id);
-  revalidatePath("/admin/pegawai");
-  return { ok: true, email, password };
-}
-
-export async function resetPasswordPegawai(
-  _prev: AkunState,
-  formData: FormData,
-): Promise<AkunState> {
-  await requireAdmin();
-  const pegawaiId = String(formData.get("pegawai_id") || "");
-  if (!pegawaiId) return { ok: false, message: "Pilih pegawai dulu." };
-
-  const db = createAdminClient();
-  const { data: peg } = await db
-    .from("pegawai")
-    .select("auth_user_id")
-    .eq("id", pegawaiId)
-    .maybeSingle();
-  if (!peg?.auth_user_id) return { ok: false, message: "Pegawai ini belum punya akun login." };
-
-  const password = "Qrensi!" + randomBytes(4).toString("hex");
-  const { data: updated, error } = await db.auth.admin.updateUserById(peg.auth_user_id, {
-    password,
-    user_metadata: { must_change_password: true },
-  });
-  if (error) return { ok: false, message: error.message };
-
-  revalidatePath("/admin/pegawai");
-  return { ok: true, email: updated.user.email ?? "", password };
-}
-
 // ---------- Pengaturan Potongan ----------
 
 export async function createPotongan(formData: FormData) {
   const user = await requireAdmin();
+  assertCan(user, "konfig.potongan");
   const jenis = String(formData.get("jenis") || "");
   const menit_dari = parseInt(String(formData.get("menit_dari") || "0"), 10);
   const sampaiRaw = String(formData.get("menit_sampai") || "").trim();
@@ -227,7 +136,7 @@ export async function createPotongan(formData: FormData) {
 }
 
 export async function deletePotongan(formData: FormData) {
-  await requireAdmin();
+  assertCan(await requireAdmin(), "konfig.potongan");
   const id = String(formData.get("id"));
   const db = createAdminClient();
   await db.from("pengaturan_potongan").delete().eq("id", id);

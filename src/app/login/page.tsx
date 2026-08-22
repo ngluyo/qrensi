@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Loader2, LogIn, AlertCircle } from "lucide-react";
 
 function LoginForm() {
@@ -48,19 +49,15 @@ function LoginForm() {
           placeholder="nama@instansi.go.id"
         />
       </div>
-      <div className="space-y-1.5">
-        <label className="text-sm font-semibold" htmlFor="password">Kata sandi</label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/25"
-          placeholder="••••••••"
-        />
-      </div>
+      <PasswordInput
+        id="password"
+        label="Kata sandi"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="••••••••"
+        autoComplete="current-password"
+        required
+      />
 
       {error && (
         <div className="flex items-center gap-2 rounded-xl bg-danger-soft px-3 py-2.5 text-sm font-medium text-danger">

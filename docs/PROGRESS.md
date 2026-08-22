@@ -7,7 +7,7 @@
 
 ## Status Global
 **Mode:** Restrukturisasi terarah (ADR-0019) — fondasi dipertahankan, lapisan aplikasi dirombak.
-**Tahap aktif:** **Tahap 1 — Pemadaman Kebakaran (P0)**
+**Tahap aktif:** **Tahap 3 — Pengalaman Pegawai** (Tahap 1 & 2 selesai)
 **Produksi:** `qrensi.vercel.app` (tertinggal di commit `8f93ba0`)
 
 > ✅ Blokir push & deploy **teratasi**: kredensial GitHub diperbarui user; author commit
@@ -42,8 +42,14 @@
 - ☑ 2.3 Edit profil pegawai (nama/NIP/jabatan/unit/pola/status)
 - ☑ 2.4 Aksi akun di detail (buat akun, reset password) + hapus pegawai
 - ☑ 2.5 Enrollment wajah dari detail (preselect `?pegawai=`) + hapus data wajah
-- ☐ 2.6 Manajemen admin (tunjuk/cabut peran) — **berikutnya**
+- ☑ 2.6 Manajemen admin `/admin/pengguna` (tunjuk/cabut Admin OPD & Super Admin, proteksi super admin terakhir)
 - ☑ 2.7 Scoping `admin_unit` ke unitnya (`lib/izin.ts`: can/assertCan/scopeUnits — lihat PERAN.md)
+
+**Tambahan Tahap 2 (permintaan user):**
+- ☑ Ikon mata (lihat/sembunyi) di semua input kata sandi (`components/ui/password-input.tsx`)
+- ☑ Self-service profil pegawai: data pribadi (no HP/email kontak/alamat) editable sendiri;
+  data kepegawaian read-only (hanya admin) — migrasi **0008**
+- ☑ Menu admin difilter peran; halaman & action konfigurasi digating `assertCan` (13/13 uji lulus)
 
 ## Tahap 3 — Pengalaman Pegawai (mobile-native)
 - ☐ 3.1 Onboarding pertama (password → wajah → notifikasi)
@@ -79,6 +85,7 @@
 Skema DB & migrasi 0001–0007 · klaim token atomik (1-dari-2) · rotasi QR · state machine jam kerja · potongan · cron tutup sesi · ekspor Sheets · backup Drive OAuth · device binding kiosk · face verify + liveness · design system "Laut" · PWA + push.
 
 ## Menunggu User
+- ⚠️ Jalankan **`supabase/migrations/0008_data_pribadi_pegawai.sql`** (kolom no_hp/email_kontak/alamat) agar edit profil pegawai berfungsi
 - ⛔ **Akses push GitHub** (repo ada? kredensial?) — memblokir semua deploy
 - ☐ Jalankan migrasi **0006** (sanggahan) & **0007** (push) bila belum
 - ☐ Keputusan: kebijakan enrollment wajah (admin-only vs self-service terpandu)

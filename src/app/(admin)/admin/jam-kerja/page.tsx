@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { namaHari } from "@/lib/hari";
 import { updateJamSesi } from "../actions";
@@ -34,7 +34,7 @@ export default async function JamKerjaPage({
 }: {
   searchParams: Promise<SP>;
 }) {
-  const user = await requireAdmin();
+  const user = await requireSuperAdmin();
   const sp = await searchParams;
   const db = createAdminClient();
 

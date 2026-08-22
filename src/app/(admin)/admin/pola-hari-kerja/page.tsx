@@ -1,11 +1,11 @@
-import { requireAdmin } from "@/lib/auth";
+import { requireSuperAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { HARI, pendekHari } from "@/lib/hari";
 import { createPola, deletePola } from "../actions";
 import { Trash2, Plus } from "lucide-react";
 
 export default async function PolaHariKerjaPage() {
-  const user = await requireAdmin();
+  const user = await requireSuperAdmin();
   const db = createAdminClient();
   const { data: pola } = await db
     .from("pola_hari_kerja")

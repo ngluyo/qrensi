@@ -1,14 +1,34 @@
 import Link from "next/link";
-import { ScanFace, LogOut, ChevronRight, FileText, KeyRound } from "lucide-react";
+import { requireUser } from "@/lib/auth";
+import { createAdminClient } from "@/lib/supabase/server";
 import { NotifToggle } from "@/components/notif-toggle";
+import { ScanFace, LogOut, ChevronRight, FileText, KeyRound, UserPen } from "lucide-react";
 
-const menu = [
-  { label: "Izin & Sanggahan", desc: "Ajukan izin/sakit/cuti/dinas", icon: FileText, href: "/izin" },
-  { label: "Ganti kata sandi", desc: "Perbarui kata sandi akun", icon: KeyRound, href: "/ganti-password" },
-  { label: "Enrollment wajah", desc: "Daftarkan / perbarui wajah", icon: ScanFace, href: null },
-];
+export default async function ProfilPage() {
+  const user = await requireUser("/profil");
+  const db = createAdminClient();
 
-export default function ProfilPage() {
+  const { data: peg } = user.pegawaiId
+    ? await db
+        .from("pegawai")
+        .select("nama, nip, jabatan, unit_kerja(nama)")
+        .eq("id", user.pegawaiId)
+        .maybeSingle()
+    : { data: null };
+
+  const enrolled = user.pegawaiId
+    ? !!(await db.from("pegawai_face_enrollment").select("pegawai_id").eq("pegawai_id", user.pegawaiId).maybeSingle()).data
+    : false;
+
+  const nama = (peg?.nama as string) ?? user.nama ?? "Pegawai";
+  const unit = (peg?.unit_kerja as unknown as { nama: string } | null)?.nama;
+
+  const menu = [
+    { label: "Edit profil", desc: "Nomor HP, email kontak, alamat", icon: UserPen, href: "/profil/edit" },
+    { label: "Izin & Sanggahan", desc: "Ajukan izin/sakit/cuti/dinas", icon: FileText, href: "/izin" },
+    { label: "Ganti kata sandi", desc: "Perbarui kata sandi akun", icon: KeyRound, href: "/ganti-password" },
+  ];
+
   return (
     <div className="space-y-6">
       <header>
@@ -16,37 +36,50 @@ export default function ProfilPage() {
       </header>
 
       <div className="flex items-center gap-4 rounded-2xl bg-brand p-5 text-brand-fg shadow-[var(--shadow-md)]">
-        <div className="grid size-14 place-items-center rounded-full bg-white/15 text-xl font-bold">
-          B
+        <div className="grid size-14 shrink-0 place-items-center rounded-full bg-white/15 text-xl font-bold">
+          {nama.charAt(0).toUpperCase()}
         </div>
-        <div>
-          <div className="text-lg font-bold">Budi Santoso</div>
-          <div className="text-xs opacity-70 tabular">NIP 1987… · Unit Metrologi Legal</div>
+        <div className="min-w-0">
+          <div className="truncate text-lg font-bold">{nama}</div>
+          <div className="tabular truncate text-xs opacity-70">
+            {(peg?.nip as string) ?? "NIP belum diisi"}
+            {unit ? ` · ${unit}` : ""}
+          </div>
+          <span className="mt-1 inline-block rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-semibold">
+            {enrolled ? "Wajah terdaftar" : "Wajah belum terdaftar"}
+          </span>
         </div>
       </div>
 
       <div className="space-y-2">
-        {menu.map((m) => {
-          const inner = (
-            <>
-              <div className="grid size-10 place-items-center rounded-xl bg-surface-2 text-muted">
-                <m.icon className="size-5" />
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold">{m.label}</div>
-                <div className="text-xs text-muted">{m.desc}</div>
-              </div>
-              <ChevronRight className="size-5 text-muted" />
-            </>
-          );
-          const cls = "pressable flex w-full items-center gap-3 rounded-2xl bg-surface p-4 text-left shadow-[var(--shadow-sm)]";
-          return m.href ? (
-            <Link key={m.label} href={m.href} className={cls}>{inner}</Link>
-          ) : (
-            <button key={m.label} className={cls}>{inner}</button>
-          );
-        })}
+        {menu.map((m) => (
+          <Link
+            key={m.label}
+            href={m.href}
+            className="pressable flex w-full items-center gap-3 rounded-2xl bg-surface p-4 text-left shadow-[var(--shadow-sm)]"
+          >
+            <div className="grid size-10 place-items-center rounded-xl bg-surface-2 text-muted">
+              <m.icon className="size-5" />
+            </div>
+            <div className="flex-1">
+              <div className="font-semibold">{m.label}</div>
+              <div className="text-xs text-muted">{m.desc}</div>
+            </div>
+            <ChevronRight className="size-5 text-muted" />
+          </Link>
+        ))}
+
+        {!enrolled && (
+          <div className="flex items-center gap-3 rounded-2xl bg-warning-soft p-4 text-warning">
+            <ScanFace className="size-5 shrink-0" />
+            <p className="text-xs font-medium">
+              Wajah Anda belum terdaftar. Hubungi admin kepegawaian unit Anda untuk enrollment.
+            </p>
+          </div>
+        )}
+
         <NotifToggle />
+
         <form action="/logout" method="post">
           <button className="pressable flex w-full items-center gap-3 rounded-2xl bg-danger-soft p-4 text-left text-danger">
             <div className="grid size-10 place-items-center rounded-xl bg-danger/10">
@@ -56,7 +89,6 @@ export default function ProfilPage() {
           </button>
         </form>
       </div>
-      <p className="text-center text-xs text-muted">Login &amp; enrollment aktif setelah wiring Supabase Auth.</p>
     </div>
   );
 }

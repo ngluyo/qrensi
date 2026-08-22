@@ -303,3 +303,22 @@
 **Blocker:** —
 
 **Next:** 2.6 manajemen admin (tunjuk/cabut peran) -> Tahap 3 (onboarding pegawai, riwayat interaktif) -> Tahap 4 (integritas data).
+
+---
+
+## Sesi #17 — 2026-08-22
+**Tujuan:** Tahap 2 tuntas — manajemen admin, self-service profil, ikon mata password.
+
+**Yang dikerjakan:**
+- components/ui/password-input.tsx: input password dgn tombol lihat/sembunyi (aria-pressed, title). Dipakai di /login dan /ganti-password (2 field).
+- Pemisahan data (jawaban pertanyaan user): data KEPEGAWAIAN (nip/jabatan/unit/pola/status) hanya admin; data PRIBADI (no_hp/email_kontak/alamat) boleh diubah pegawai sendiri. Migrasi 0008 + /profil/edit (form data pribadi + panel data kepegawaian read-only) + profil dirombak pakai data nyata.
+- 2.6 Manajemen admin /admin/pengguna (super admin saja): daftar admin, tunjuk Admin OPD/Super Admin, cabut peran, proteksi "super admin terakhir tidak bisa dicabut", penjelasan kewenangan.
+- Penegakan peran: menu admin difilter `can()`; halaman jam-kerja/pola/potongan pakai requireSuperAdmin; action konfigurasi + createPegawai digating assertCan (+ scoping unit).
+- Bersih-bersih: hapus action lama tanpa scoping (updatePegawai/deletePegawai/buatAkunPegawai/resetPasswordPegawai) yang sudah digantikan versi ber-scoping di [id]/actions.ts; hapus dead component pegawai-manager.
+- Uji logika izin: 13/13 skenario lulus (super/OPD/pegawai). Build hijau.
+
+**Keputusan baru:** — (mengikuti ADR-0019..0022 & PERAN.md)
+
+**Blocker:** user perlu jalankan migrasi 0008.
+
+**Next:** Tahap 3 — onboarding pegawai, riwayat interaktif (detail per hari), skeleton/empty state, install prompt PWA.

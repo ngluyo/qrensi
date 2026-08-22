@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { PasswordInput } from "@/components/ui/password-input";
 import { KeyRound, Loader2, AlertCircle } from "lucide-react";
 
 export function GantiPasswordForm({ nama, tujuan }: { nama: string; tujuan: string }) {
@@ -37,32 +38,24 @@ export function GantiPasswordForm({ nama, tujuan }: { nama: string; tujuan: stri
       <p className="text-sm text-muted">
         Masuk sebagai <strong>{nama}</strong>
       </p>
-      <div className="space-y-1.5">
-        <label className="text-sm font-semibold" htmlFor="p1">Kata sandi baru</label>
-        <input
-          id="p1"
-          type="password"
-          autoComplete="new-password"
-          required
-          value={p1}
-          onChange={(e) => setP1(e.target.value)}
-          className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/25"
-          placeholder="minimal 8 karakter"
-        />
-      </div>
-      <div className="space-y-1.5">
-        <label className="text-sm font-semibold" htmlFor="p2">Ulangi kata sandi</label>
-        <input
-          id="p2"
-          type="password"
-          autoComplete="new-password"
-          required
-          value={p2}
-          onChange={(e) => setP2(e.target.value)}
-          className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/25"
-          placeholder="ketik ulang"
-        />
-      </div>
+      <PasswordInput
+        id="p1"
+        label="Kata sandi baru"
+        value={p1}
+        onChange={(e) => setP1(e.target.value)}
+        placeholder="minimal 8 karakter"
+        autoComplete="new-password"
+        required
+      />
+      <PasswordInput
+        id="p2"
+        label="Ulangi kata sandi"
+        value={p2}
+        onChange={(e) => setP2(e.target.value)}
+        placeholder="ketik ulang"
+        autoComplete="new-password"
+        required
+      />
 
       {error && (
         <div className="flex items-center gap-2 rounded-xl bg-danger-soft px-3 py-2.5 text-sm font-medium text-danger">
