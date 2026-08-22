@@ -2,6 +2,8 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { NotifToggle } from "@/components/notif-toggle";
+import { Avatar } from "@/components/ui/avatar";
+import { signedAvatar } from "@/lib/avatar";
 import { ScanFace, LogOut, ChevronRight, FileText, KeyRound, UserPen } from "lucide-react";
 
 export default async function ProfilPage() {
@@ -11,7 +13,7 @@ export default async function ProfilPage() {
   const { data: peg } = user.pegawaiId
     ? await db
         .from("pegawai")
-        .select("nama, nip, jabatan, unit_kerja(nama)")
+        .select("nama, nip, jabatan, foto_path, unit_kerja(nama)")
         .eq("id", user.pegawaiId)
         .maybeSingle()
     : { data: null };
@@ -21,6 +23,7 @@ export default async function ProfilPage() {
     : false;
 
   const nama = (peg?.nama as string) ?? user.nama ?? "Pegawai";
+  const fotoUrl = await signedAvatar(db, peg?.foto_path as string | null);
   const unit = (peg?.unit_kerja as unknown as { nama: string } | null)?.nama;
 
   const menu = [
@@ -36,9 +39,7 @@ export default async function ProfilPage() {
       </header>
 
       <div className="flex items-center gap-4 rounded-2xl bg-brand p-5 text-brand-fg shadow-[var(--shadow-md)]">
-        <div className="grid size-14 shrink-0 place-items-center rounded-full bg-white/15 text-xl font-bold">
-          {nama.charAt(0).toUpperCase()}
-        </div>
+        <Avatar nama={nama} src={fotoUrl} size={56} className="bg-white/15 text-brand-fg" />
         <div className="min-w-0">
           <div className="truncate text-lg font-bold">{nama}</div>
           <div className="tabular truncate text-xs opacity-70">

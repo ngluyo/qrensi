@@ -355,3 +355,25 @@
 
 **Next:** 5.2 laporan per pegawai/unit, 5.3 filter periode; 6.1 Upstash, 6.4 load test,
 6.5 TWA/APK, 6.6 dokumen serah terima.
+
+---
+
+## Sesi #20 — 2026-08-22
+**Tujuan:** Foto profil (pertanyaan user) + rate limit persisten Upstash.
+
+**Yang dikerjakan:**
+- Keputusan kepatuhan: foto profil DIPISAH dari biometrik enrollment (UU PDP - pembatasan tujuan).
+  Migrasi 0010 (pegawai.foto_path) + bucket privat `avatar` (2MB).
+- lib/avatar.ts (signed URL tunggal & batch), components/ui/avatar.tsx (foto atau inisial).
+- /profil/edit: komponen FotoProfil — unggah/ganti/hapus, dikecilkan di klien ke WebP <=512px,
+  hapus file lama saat diganti. Avatar tampil di profil pegawai & daftar pegawai admin.
+- 6.1 Rate limit: lib/rate-limit ditulis ulang jadi dua lapis — Upstash Redis bila env ada,
+  fallback in-memory bila tidak; error Redis pun jatuh ke fallback (tidak mengunci pengguna).
+  Pemanggil di verify & qr/generate kini await.
+- Panduan Upstash lengkap ditulis di SETUP_CHECKLIST §7.
+- Storage & signed URL diverifikasi nyata; build hijau; npm test 20/20 lulus.
+
+**Blocker:** user jalankan migrasi 0010; opsional isi env Upstash.
+
+**Next:** 5.2/5.3 laporan per pegawai & filter periode; 6.5 TWA/APK (Android Studio sudah ada);
+6.6 dokumen serah terima.

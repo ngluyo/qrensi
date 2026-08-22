@@ -13,6 +13,8 @@
     "@hookform/resolvers": "^5.7.1",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.2",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.2",
     "@vladmandic/face-api": "^1.7.15",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",

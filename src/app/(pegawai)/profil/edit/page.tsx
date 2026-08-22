@@ -2,6 +2,8 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/server";
 import { EditProfilForm } from "./edit-profil-form";
+import { FotoProfil } from "./foto-profil";
+import { signedAvatar } from "@/lib/avatar";
 import { ArrowLeft, Lock } from "lucide-react";
 
 export default async function EditProfilPage() {
@@ -11,10 +13,12 @@ export default async function EditProfilPage() {
   const { data: peg } = user.pegawaiId
     ? await db
         .from("pegawai")
-        .select("nama, nip, jabatan, no_hp, email_kontak, alamat, unit_kerja(nama), pola_hari_kerja(nama)")
+        .select("nama, nip, jabatan, no_hp, email_kontak, alamat, foto_path, unit_kerja(nama), pola_hari_kerja(nama)")
         .eq("id", user.pegawaiId)
         .maybeSingle()
     : { data: null };
+
+  const fotoUrl = await signedAvatar(db, peg?.foto_path as string | null);
 
   const kepegawaian = [
     { label: "Nama", nilai: (peg?.nama as string) ?? "—" },
@@ -35,6 +39,8 @@ export default async function EditProfilPage() {
           <p className="text-xs text-muted">Perbarui data kontak pribadi Anda.</p>
         </div>
       </header>
+
+      <FotoProfil nama={(peg?.nama as string) ?? "Pegawai"} src={fotoUrl} />
 
       <EditProfilForm
         awal={{

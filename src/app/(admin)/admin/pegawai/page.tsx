@@ -5,6 +5,8 @@ import { can, scopeUnits } from "@/lib/izin";
 import { PegawaiFilter } from "./pegawai-filter";
 import { TambahPegawai } from "./tambah-pegawai";
 import { ChevronRight, Users } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
+import { signedAvatars } from "@/lib/avatar";
 
 const PER_HAL = 20;
 
@@ -30,7 +32,7 @@ export default async function PegawaiPage({ searchParams }: { searchParams: Prom
   // Query pegawai + filter.
   let query = db
     .from("pegawai")
-    .select("id, nama, nip, jabatan, status_kepegawaian, auth_user_id, unit_kerja_id, unit_kerja(nama), pola_hari_kerja(nama)", { count: "exact" })
+    .select("id, nama, nip, jabatan, status_kepegawaian, auth_user_id, unit_kerja_id, foto_path, unit_kerja(nama), pola_hari_kerja(nama)", { count: "exact" })
     .eq("instansi_id", user.instansiId);
 
   if (lingkup) query = query.in("unit_kerja_id", lingkup.length ? lingkup : ["-"]);
@@ -52,7 +54,10 @@ export default async function PegawaiPage({ searchParams }: { searchParams: Prom
     punyaAkun: !!p.auth_user_id,
     unit: (p.unit_kerja as unknown as { nama: string } | null)?.nama ?? null,
     pola: (p.pola_hari_kerja as unknown as { nama: string } | null)?.nama ?? null,
+    fotoPath: (p.foto_path as string) ?? null,
   }));
+
+  const avatarUrls = await signedAvatars(db, rows.map((r) => r.fotoPath));
 
   const total = count ?? 0;
   const totalHal = Math.max(1, Math.ceil(total / PER_HAL));
@@ -93,9 +98,7 @@ export default async function PegawaiPage({ searchParams }: { searchParams: Prom
             href={`/admin/pegawai/${p.id}`}
             className="pressable flex items-center gap-3 rounded-2xl bg-surface p-3.5 shadow-[var(--shadow-sm)]"
           >
-            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-soft font-bold text-brand">
-              {p.nama.charAt(0).toUpperCase()}
-            </div>
+            <Avatar nama={p.nama} src={p.fotoPath ? avatarUrls.get(p.fotoPath) : null} size={40} />
             <div className="min-w-0 flex-1">
               <div className="truncate font-semibold">{p.nama}</div>
               <div className="tabular truncate text-xs text-muted">

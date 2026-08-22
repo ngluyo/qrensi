@@ -73,7 +73,8 @@
 - ☐ 5.3 Filter periode bebas
 
 ## Tahap 6 — Pengerasan & Rilis
-- ☐ 6.1 Rate limit persisten (Upstash)
+- ☑ 6.1 Rate limit persisten (Upstash Redis) — **kode siap**, otomatis dipakai bila env diisi;
+  fallback in-memory bila belum (app tetap jalan). Lihat SETUP_CHECKLIST §7.
 - ☑ 6.2 Security headers (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy `camera=(self)`, no-cache `/sw.js`) — **terverifikasi**
 - ☑ 6.3 Halaman 404/error kustom
 - ☐ 6.4 Uji beban
@@ -86,7 +87,8 @@
 Skema DB & migrasi 0001–0007 · klaim token atomik (1-dari-2) · rotasi QR · state machine jam kerja · potongan · cron tutup sesi · ekspor Sheets · backup Drive OAuth · device binding kiosk · face verify + liveness · design system "Laut" · PWA + push.
 
 ## Menunggu User
-- ⚠️ Jalankan **`supabase/migrations/0009_status_izin_presensi.sql`** — status izin/sakit/cuti/dinas_luar, kolom `presensi.sanggahan_id`, tabel `audit_admin`. Tanpa ini, approve izin tidak mengubah presensi.
+- ⚠️ Jalankan **`supabase/migrations/0010_foto_profil.sql`** (kolom `pegawai.foto_path`) agar foto profil berfungsi. Bucket `avatar` sudah dibuat.
+- ⏳ (Opsional) Isi `UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN` — panduan di SETUP_CHECKLIST §7.
 - ⛔ **Akses push GitHub** (repo ada? kredensial?) — memblokir semua deploy
 - ☐ Jalankan migrasi **0006** (sanggahan) & **0007** (push) bila belum
 - ☐ Keputusan: kebijakan enrollment wajah (admin-only vs self-service terpandu)

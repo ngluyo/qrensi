@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   if (!secret) return NextResponse.json({ error: "no_secret" }, { status: 400 });
 
   // Rate limit per secret: 40/menit (kiosk polling ~20/menit → longgar).
-  const rl = rateLimit(`gen:${hashDeviceSecret(secret)}`, 40, 60_000);
+  const rl = await rateLimit(`gen:${hashDeviceSecret(secret)}`, 40, 60_000);
   if (!rl.ok) return NextResponse.json({ error: "rate_limited" }, { status: 429, headers: { "Retry-After": String(rl.retryAfter) } });
 
   const db = createAdminClient();

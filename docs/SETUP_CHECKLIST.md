@@ -60,3 +60,31 @@
 
 ### Prioritas sekarang
 Hanya **#1 (Supabase)** yang memblokir kemajuan berikutnya. Sisanya bisa menyusul.
+
+
+## 7. Upstash Redis — rate limit persisten (opsional, disarankan produksi)
+
+**Kenapa perlu:** Vercel menjalankan banyak instance. Rate limit in-memory hanya berlaku
+per-instance, jadi batas "10 percobaan/menit" bisa terlampaui. Upstash Redis membuat batas
+berlaku global. Gratis (10.000 perintah/hari — jauh di atas kebutuhan kita).
+
+**Langkah:**
+1. Buka https://console.upstash.com → login.
+2. Klik **Create Database** (kadang tertulis *Create* di kartu **Redis**).
+3. Isi:
+   - **Name:** `qrensi`
+   - **Type/Primary Region:** pilih region terdekat — **Singapore (ap-southeast-1)**
+   - **Eviction:** biarkan default. **TLS:** aktif (default).
+   - Pastikan plan **Free**.
+4. Klik **Create**.
+5. Masuk ke database `qrensi` → gulir ke bagian **REST API** (bukan "Redis Connect").
+6. Salin dua nilai:
+   - `UPSTASH_REDIS_REST_URL` → berbentuk `https://xxx-yyy-12345.upstash.io`
+   - `UPSTASH_REDIS_REST_TOKEN` → string panjang (klik ikon mata/Copy)
+7. Tempel ke `.env.local` **dan** Vercel → Settings → Environment Variables (Production), lalu **Redeploy**.
+
+> Jangan pakai nilai dari tab "Redis Connect" (itu format `redis://…` untuk koneksi TCP) —
+> yang dibutuhkan adalah pasangan **REST URL + REST TOKEN**.
+
+**Tanpa langkah ini aplikasi tetap jalan** (fallback in-memory), hanya perlindungan
+brute-force-nya kurang ketat.
