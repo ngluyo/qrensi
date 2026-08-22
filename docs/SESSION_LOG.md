@@ -284,3 +284,22 @@
 **Blocker:** push GitHub masih gagal ("Repository not found") -> semua perbaikan belum sampai produksi.
 
 **Next:** selesaikan akses repo -> deploy -> user uji ulang -> Tahap 2 (rombak modul Pegawai).
+
+---
+
+## Sesi #16 — 2026-08-22 (lanjutan #15)
+**Tujuan:** Buka blokir deploy + admin berjenjang + Tahap 2 modul Pegawai.
+
+**Yang dikerjakan:**
+- Blokir push teratasi (user perbarui kredensial). Blokir DEPLOY ketahuan: Vercel Hobby menolak commit ber-author `metrologiktb` (bukan pemilik project). Diperbaiki: satukan jadi satu commit ber-author `ngluyo` + force-push (ADR-0022).
+- Riset admin berjenjang: standar SIMPEG daerah (Admin BKPSDM / UMPEG per OPD / Verifikator / Pegawai) + NIST Hierarchical RBAC -> docs/PERAN.md (matriks kewenangan lengkap + rencana implementasi).
+- lib/izin.ts: can/assertCan/scopeUnits. Super Admin = semua; Admin OPD = unit yang diampu. Konfigurasi jam kerja/potongan, pindah unit, kelola peran, ekspor = khusus super admin. Enrollment wajah DIDELEGASIKAN ke Admin OPD (jawaban kebutuhan user).
+- Modul Pegawai dirombak total: daftar (cari/filter/paginasi/badge), halaman detail [id] (profil editable, akun buat/reset, enrollment + hapus wajah, rekap bulan, hapus pegawai), semua action digating assertCan + scoping unit.
+- Enrollment menerima `?pegawai=` untuk preselect. Hapus dead code pegawai-manager.
+- Build hijau.
+
+**Keputusan baru:** ADR-0022 (author commit = pemilik Vercel).
+
+**Blocker:** —
+
+**Next:** 2.6 manajemen admin (tunjuk/cabut peran) -> Tahap 3 (onboarding pegawai, riwayat interaktif) -> Tahap 4 (integritas data).

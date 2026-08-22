@@ -25,6 +25,11 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0022 — Author commit harus akun pemilik Vercel (ngluyo)
+- **Tanggal:** 2026-08-22
+- **Keputusan:** Semua commit di-author `ngluyo <ngluyo@gmail.com>`. Commit ber-author lain (mis. `metrologiktb`) **diblokir Vercel**: "commit author did not have contributing access... Hobby Plan does not support collaboration for private repositories".
+- **Alasan:** Vercel Hobby hanya membangun commit dari pemilik project. Dua commit sempat ter-author identitas lain sehingga deploy diblokir; diperbaiki dengan menyatukan jadi satu commit ber-author benar lalu force-push. Pastikan `git config user.email` tetap ngluyo@gmail.com.
+
 ### ADR-0021 — Android via TWA (Bubblewrap), bukan Capacitor
 - **Tanggal:** 2026-08-22
 - **Keputusan:** Bila dibutuhkan APK/Play Store, bungkus PWA live dengan **TWA/Bubblewrap** + `assetlinks.json`. Capacitor **ditolak**.

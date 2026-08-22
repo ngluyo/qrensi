@@ -10,9 +10,8 @@
 **Tahap aktif:** **Tahap 1 — Pemadaman Kebakaran (P0)**
 **Produksi:** `qrensi.vercel.app` (tertinggal di commit `8f93ba0`)
 
-> ⛔ **BLOKIR UTAMA:** `git push` ke `github.com/ngluyo/qrensi` gagal ("Repository not found").
-> Commit `54b9258` (paksa ganti password, PDF, rate-limit) + perbaikan P0 **belum sampai produksi**.
-> Butuh: konfirmasi repo masih ada / kredensial GitHub diperbarui.
+> ✅ Blokir push & deploy **teratasi**: kredensial GitHub diperbarui user; author commit
+> diseragamkan ke `ngluyo` (Vercel Hobby menolak author lain — ADR-0022). Commit `9b52c38` ter-push.
 
 ---
 
@@ -32,19 +31,19 @@
 
 ## Tahap 1 — Pemadaman Kebakaran (P0)
 - ☑ 1.1 Fix logout → redirect **303** (bug A1)
-- ⛔ 1.2 Deploy commit tertinggal `54b9258` — **terblokir push GitHub**
+- ☑ 1.2 Deploy commit tertinggal (digabung ke `9b52c38`, author diperbaiki)
 - ☑ 1.3 Fix kamera: izin diminta **sebelum** muat model + fallback backend + error asli (bug A3)
 - ☑ 1.4 Halaman **Akun Saya** (ganti password mandiri semua peran) (bug A2/B4)
 - ☐ 1.5 Verifikasi di produksi: paksa ganti password + kamera + logout (butuh deploy)
 
 ## Tahap 2 — Modul Pegawai & Manajemen Akun (rombak total)
-- ☐ 2.1 Daftar: pencarian + filter unit/status + paginasi
-- ☐ 2.2 Halaman detail pegawai `/admin/pegawai/[id]`
-- ☐ 2.3 Edit profil pegawai
-- ☐ 2.4 Aksi akun di detail (buat/reset/nonaktif)
-- ☐ 2.5 Enrollment wajah dari detail pegawai
-- ☐ 2.6 Manajemen admin (tunjuk/cabut peran)
-- ☐ 2.7 Scoping `admin_unit` ke unitnya
+- ☑ 2.1 Daftar: pencarian nama/NIP + filter unit/status/akun + paginasi + badge
+- ☑ 2.2 Halaman detail pegawai `/admin/pegawai/[id]`
+- ☑ 2.3 Edit profil pegawai (nama/NIP/jabatan/unit/pola/status)
+- ☑ 2.4 Aksi akun di detail (buat akun, reset password) + hapus pegawai
+- ☑ 2.5 Enrollment wajah dari detail (preselect `?pegawai=`) + hapus data wajah
+- ☐ 2.6 Manajemen admin (tunjuk/cabut peran) — **berikutnya**
+- ☑ 2.7 Scoping `admin_unit` ke unitnya (`lib/izin.ts`: can/assertCan/scopeUnits — lihat PERAN.md)
 
 ## Tahap 3 — Pengalaman Pegawai (mobile-native)
 - ☐ 3.1 Onboarding pertama (password → wajah → notifikasi)
