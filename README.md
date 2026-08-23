@@ -70,6 +70,9 @@ npm test
 | Berkas | Isi |
 |---|---|
 | [`docs/INSTALASI.md`](docs/INSTALASI.md) | Panduan pemasangan langkah demi langkah |
+| [`docs/PANDUAN_ADMIN.md`](docs/PANDUAN_ADMIN.md) | Panduan untuk petugas kepegawaian |
+| [`docs/PANDUAN_PEGAWAI.md`](docs/PANDUAN_PEGAWAI.md) | Panduan untuk pegawai (pengguna akhir) |
+| [`docs/RUNBOOK.md`](docs/RUNBOOK.md) | Operasional: pemeriksaan rutin & pemulihan masalah |
 | [`docs/PERAN.md`](docs/PERAN.md) | Peran pengguna & batas kewenangan |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Arsitektur teknis |
 | [`docs/PRD.md`](docs/PRD.md) | Spesifikasi produk |

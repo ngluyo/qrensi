@@ -403,3 +403,26 @@
 **Blocker:** user jalankan migrasi 0011.
 
 **Next:** 5.2/5.3 laporan lanjutan; 6.5 APK Android (TWA); 6.6 dokumen serah terima.
+
+---
+
+## Sesi #22 — 2026-08-23
+**Tujuan:** Kemudahan adopsi (riset ulang), laporan berfilter, dokumen serah terima.
+
+**Yang dikerjakan:**
+- Riset ulang pola aplikasi self-hosted yang mudah diadopsi -> tiga pola kunci: setup wizard,
+  health check, validasi konfigurasi. Celah QRensi: pengadopsi tak tahu setup benar/salah.
+- lib/diagnostik.ts + /admin/diagnostik: 17 pemeriksaan berkelompok (inti/konfigurasi/keamanan/
+  integrasi) dgn tingkat ok/peringatan/gagal + saran perbaikan konkret. Tidak menampilkan rahasia.
+  Mendeteksi juga bucket yang keliru diset publik.
+- /api/health: endpoint ringan utk monitoring (200 sehat / 503 gagal), tanpa bocorkan konfigurasi.
+- 5.2/5.3: lib/rekap.ts direfaktor menerima Periode + unitKerjaIds; laporan-cetak dapat filter
+  tanggal bebas + pintasan bulan + filter unit (Admin OPD terkunci ke unitnya) + baris total.
+- 6.6 dokumen serah terima: PANDUAN_ADMIN.md, PANDUAN_PEGAWAI.md, RUNBOOK.md (pemeriksaan cepat,
+  cron, batas paket gratis + SQL pembersihan, pemulihan masalah, rotasi kunci, cadangan).
+- Verifikasi instalasi live: 17/17 tabel, bucket lengkap & privat, semua env terisi,
+  Upstash terhubung, /api/health 200, manifest dinamis benar. Build hijau, npm test 20/20.
+
+**Blocker:** —
+
+**Next:** 6.5 APK Android via TWA/Bubblewrap (Android Studio sudah tersedia di perangkat user).

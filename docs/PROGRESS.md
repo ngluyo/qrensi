@@ -69,17 +69,17 @@
 ## Tahap 5 — Dashboard & Laporan Lanjutan
 - ☑ 5.1 Dashboard admin: % kehadiran hari ini, statistik (aktif/hadir/telat/belum), "perlu tindakan"
   (izin pending, belum enroll), aktivitas terbaru — semua **discope per unit** untuk Admin OPD
-- ☐ 5.2 Laporan per pegawai/unit (PDF)
-- ☐ 5.3 Filter periode bebas
+- ☑ 5.2 Laporan cetak dgn filter **unit** (Admin OPD terkunci ke unitnya) + total agregat
+- ☑ 5.3 Filter **periode bebas** (dari–sampai) + pintasan bulan ini/lalu
 
 ## Tahap 6 — Pengerasan & Rilis
 - ☑ 6.1 Rate limit persisten (Upstash Redis) — **kode siap**, otomatis dipakai bila env diisi;
   fallback in-memory bila belum (app tetap jalan). Lihat SETUP_CHECKLIST §7.
 - ☑ 6.2 Security headers (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy `camera=(self)`, no-cache `/sw.js`) — **terverifikasi**
 - ☑ 6.3 Halaman 404/error kustom
-- ☐ 6.4 Uji beban
+- ⏸ 6.4 Uji beban — ditunda (keputusan user; skala pilot)
 - ☐ 6.5 TWA/Bubblewrap → APK Android
-- ☐ 6.6 Dokumen serah terima
+- ☑ 6.6 Dokumen serah terima: PANDUAN_ADMIN, PANDUAN_PEGAWAI, RUNBOOK, INSTALASI
 
 ---
 
@@ -95,8 +95,14 @@ Skema DB & migrasi 0001–0007 · klaim token atomik (1-dari-2) · rotasi QR · 
 - ☑ `docs/INSTALASI.md` — panduan lengkap dari nol + `scripts/buat-admin.mjs`
 - ☑ README dirombak jadi pintu masuk proyek
 
+## Kemudahan Adopsi (hasil riset ulang) ✅
+- ☑ **Diagnostik instalasi** `/admin/diagnostik` — 17 pemeriksaan (env, tabel, bucket privat,
+  jam kerja, kiosk, super admin, integrasi) dgn saran perbaikan; tidak pernah menampilkan rahasia
+- ☑ **Health check** `/api/health` untuk monitoring/uptime (200/503)
+- ☑ Panduan pengguna akhir (admin & pegawai) + runbook operasional
+
 ## Menunggu User
-- ⚠️ Jalankan **`supabase/migrations/0011_pengaturan_aplikasi.sql`** agar halaman Pengaturan Aplikasi berfungsi (sebelum itu app tetap jalan memakai identitas bawaan).
+- ☑ Migrasi 0011 sudah dijalankan — white-label aktif & terverifikasi.
 - ☑ Upstash terpasang & **terverifikasi terhubung** — rate limit kini persisten.
 - ☑ Migrasi 0009 & 0010 sudah dijalankan user.
 - ⛔ **Akses push GitHub** (repo ada? kredensial?) — memblokir semua deploy

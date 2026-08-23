@@ -12,6 +12,7 @@ import {
   FileText,
   ShieldCheck,
   Settings,
+  Stethoscope,
   LogOut,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
@@ -30,6 +31,7 @@ const menu: { href: string; label: string; icon: typeof Users; perlu?: Kemampuan
   { href: "/admin/laporan", label: "Laporan", icon: FileSpreadsheet, perlu: "laporan.ekspor" },
   { href: "/admin/pengguna", label: "Pengguna & Peran", icon: ShieldCheck, perlu: "peran.kelola" },
   { href: "/admin/pengaturan", label: "Pengaturan Aplikasi", icon: Settings, perlu: "konfig.instansi" },
+  { href: "/admin/diagnostik", label: "Diagnostik", icon: Stethoscope, perlu: "konfig.instansi" },
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
