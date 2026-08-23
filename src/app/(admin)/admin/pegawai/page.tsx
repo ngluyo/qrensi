@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { can, scopeUnits } from "@/lib/izin";
 import { PegawaiFilter } from "./pegawai-filter";
 import { TambahPegawai } from "./tambah-pegawai";
-import { ChevronRight, Users } from "lucide-react";
+import { ChevronRight, Users, Upload } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { signedAvatars } from "@/lib/avatar";
 
@@ -86,6 +86,14 @@ export default async function PegawaiPage({ searchParams }: { searchParams: Prom
             {total} pegawai{lingkup ? " di unit Anda" : ""} · ketuk untuk melihat detail
           </p>
         </div>
+        {can(user, "pegawai.tambah") && (
+          <Link
+            href="/admin/pegawai/impor"
+            className="pressable flex shrink-0 items-center gap-2 rounded-xl bg-surface px-3 py-2 text-sm font-bold shadow-[var(--shadow-sm)]"
+          >
+            <Upload className="size-4" /> Impor CSV
+          </Link>
+        )}
       </header>
 
       <PegawaiFilter units={units ?? []} q={q} unit={unitFilter} status={statusFilter} akun={akunFilter} />

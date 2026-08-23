@@ -446,3 +446,26 @@
 **Status masterplan:** Tahap 1–6 SELESAI (6.4 uji beban ditunda atas keputusan user).
 
 **Next:** menunggu user membangun APK bila diinginkan; sisanya pemeliharaan & umpan balik uji lapangan.
+
+---
+
+## Sesi #24 — 2026-08-23
+**Tujuan:** Impor pegawai massal dari CSV + upaya membangun APK langsung.
+
+**Yang dikerjakan:**
+- lib/csv.ts: parser CSV tahan kasus nyata — deteksi pemisah otomatis (koma/titik-koma/tab;
+  titik-koma umum pada Excel lokal Indonesia), buang BOM, tanda kutip + escape "", CRLF,
+  baris kosong. Uji khusus 9 skenario -> lulus semua (suite total 29/29).
+- /admin/pegawai/impor: alur dua tahap yang aman — (1) unggah -> pratinjau & validasi
+  TANPA menulis apa pun (status siap/duplikat/galat + alasan per baris), (2) simpan.
+  Deteksi duplikat via NIP (dan nama bila NIP kosong), pemetaan unit/pola dari nama
+  (toleran beda kapital/spasi), fallback ke unit/pola tunggal bila hanya ada satu.
+  Opsi "sekaligus buat akun login" -> tabel kata sandi sementara sekali tampil + salin.
+  Scoping unit ditegakkan berlapis (admin OPD tak bisa menyisipkan ke unit lain).
+- Panduan format di dalam UI + tombol unduh template + contoh/template-impor-pegawai.csv.
+- APK: keystore dibuat (keytool), twa-manifest.json disusun, konfigurasi bubblewrap ditulis
+  non-interaktif (JDK 21 Temurin + Android SDK terdeteksi). Build dijalankan.
+
+**Blocker:** —
+
+**Next:** hasil build APK; usulan halaman setup web.
