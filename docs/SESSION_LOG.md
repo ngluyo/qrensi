@@ -377,3 +377,29 @@
 
 **Next:** 5.2/5.3 laporan per pegawai & filter periode; 6.5 TWA/APK (Android Studio sudah ada);
 6.6 dokumen serah terima.
+
+---
+
+## Sesi #21 — 2026-08-23
+**Tujuan:** White-label + pembersihan frontend + SQL sekali-jalan + panduan instalasi.
+
+**Yang dikerjakan:**
+- Verifikasi Upstash: koneksi Redis OK -> rate limit persisten aktif.
+- White-label (ADR-0023): migrasi 0011 `pengaturan_aplikasi` (singleton) + bucket `branding`;
+  lib/pengaturan.ts (cache + default aman); /admin/pengaturan (super admin) dgn pratinjau,
+  unggah/ganti/hapus logo, color picker, zona waktu, kontak bantuan.
+- Branding diterapkan: layout (judul/tema + CSS var `html:root` agar menang atas dark mode),
+  halaman awal, login (dipecah server+client), kiosk (dipecah server+client),
+  app/manifest.ts dinamis menggantikan public/manifest.json.
+- Pembersihan: teks "Fase 0 — Fondasi · zero-budget PWA" dihapus; komentar usang di
+  presensi/verify diperbarui; tidak ada lagi catatan progres yang terlihat pengguna.
+- SQL (ADR-0024): `supabase/SETUP.sql` digenerate idempoten dari 0001–0011; APPLY_ALL.sql dihapus.
+- scripts/buat-admin.mjs (idempoten, diuji) untuk akun super admin pertama.
+- docs/INSTALASI.md: panduan lengkap 11 bagian (prasyarat, Supabase, env satu per satu,
+  admin, deploy, white-label, integrasi opsional, konfigurasi awal, masalah umum, ringkasan env).
+- README dirombak jadi pintu masuk proyek.
+- Build hijau; npm test 20/20.
+
+**Blocker:** user jalankan migrasi 0011.
+
+**Next:** 5.2/5.3 laporan lanjutan; 6.5 APK Android (TWA); 6.6 dokumen serah terima.

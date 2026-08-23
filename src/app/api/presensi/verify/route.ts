@@ -6,9 +6,9 @@ import { waktuInstansi, cariSesiTerbukaPola, pastikanSesiHarian } from "@/lib/se
 import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 /**
- * Verifikasi presensi (blueprint §5.2). Fase 1: tanpa face_session_token
- * (face verification menyusul di Fase 2). Klaim token atomik + resolusi sesi
- * per-pegawai + simpan presensi.
+ * Verifikasi presensi: rate limit → autentikasi → gating wajah (bila pegawai
+ * sudah enroll) → klaim token atomik → resolusi sesi per-pegawai → simpan
+ * presensi + audit log.
  */
 export async function POST(req: Request) {
   // Rate limit: 10 percobaan/menit/IP (blueprint §11.2).

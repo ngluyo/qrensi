@@ -86,9 +86,19 @@
 ## Fondasi yang SUDAH TERUJI (jangan dibongkar — AUDIT §C)
 Skema DB & migrasi 0001–0007 · klaim token atomik (1-dari-2) · rotasi QR · state machine jam kerja · potongan · cron tutup sesi · ekspor Sheets · backup Drive OAuth · device binding kiosk · face verify + liveness · design system "Laut" · PWA + push.
 
+## White-label & Replikasi ✅
+- ☑ Tabel `pengaturan_aplikasi` (migrasi 0011) + bucket `branding`
+- ☑ Halaman `/admin/pengaturan`: nama aplikasi/organisasi, tagline, logo, warna brand, zona waktu, kontak bantuan
+- ☑ Branding diterapkan ke: halaman awal, login, kiosk, judul tab, **manifest PWA dinamis**
+- ☑ Frontend dibersihkan dari catatan progres internal
+- ☑ `supabase/SETUP.sql` — satu berkas idempoten (gantikan APPLY_ALL.sql)
+- ☑ `docs/INSTALASI.md` — panduan lengkap dari nol + `scripts/buat-admin.mjs`
+- ☑ README dirombak jadi pintu masuk proyek
+
 ## Menunggu User
-- ⚠️ Jalankan **`supabase/migrations/0010_foto_profil.sql`** (kolom `pegawai.foto_path`) agar foto profil berfungsi. Bucket `avatar` sudah dibuat.
-- ⏳ (Opsional) Isi `UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN` — panduan di SETUP_CHECKLIST §7.
+- ⚠️ Jalankan **`supabase/migrations/0011_pengaturan_aplikasi.sql`** agar halaman Pengaturan Aplikasi berfungsi (sebelum itu app tetap jalan memakai identitas bawaan).
+- ☑ Upstash terpasang & **terverifikasi terhubung** — rate limit kini persisten.
+- ☑ Migrasi 0009 & 0010 sudah dijalankan user.
 - ⛔ **Akses push GitHub** (repo ada? kredensial?) — memblokir semua deploy
 - ☐ Jalankan migrasi **0006** (sanggahan) & **0007** (push) bila belum
 - ☐ Keputusan: kebijakan enrollment wajah (admin-only vs self-service terpandu)

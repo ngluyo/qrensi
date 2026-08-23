@@ -25,6 +25,17 @@
 - **Keputusan:** Adopsi penuh desain v2: QR di kiosk, HP pegawai memindai; face verify server-side; device binding di kiosk; tanpa GPS self-report HP.
 - **Alasan:** Bukti lokasi lebih kuat (kedekatan fisik), menghapus masalah device binding HP & fake-GPS untuk alur utama. PWA cukup.
 
+### ADR-0023 — White-label: identitas aplikasi jadi data, bukan kode
+- **Tanggal:** 2026-08-23
+- **Konteks:** QRensi berpotensi dipakai ulang oleh kabupaten lain, perusahaan, sekolah, atau organisasi lain — bukan hanya Kotabaru.
+- **Keputusan:** Identitas aplikasi (nama, tagline, nama organisasi, singkatan, logo, warna brand, zona waktu, kontak bantuan) dipindah ke tabel singleton `pengaturan_aplikasi` (migrasi 0011) + bucket privat `branding`, diubah lewat `/admin/pengaturan` (khusus super admin). Dibaca via `lib/pengaturan.ts` yang dibungkus `cache()` (1 query/request) dan **selalu punya nilai default** sehingga aplikasi tetap jalan sebelum migrasi dijalankan. Warna brand di-inject sebagai CSS var dengan selektor `html:root` agar mengalahkan blok dark-mode di globals.css. Manifest PWA dibuat dinamis (`app/manifest.ts`) menggantikan `public/manifest.json` statis, sehingga nama & warna aplikasi terpasang ikut identitas organisasi.
+- **Alasan:** Replikasi tanpa fork/edit kode; satu basis kode, banyak organisasi. Fallback default mencegah kegagalan saat instalasi baru belum lengkap.
+
+### ADR-0024 — Satu berkas SQL idempoten untuk instalasi baru
+- **Tanggal:** 2026-08-23
+- **Keputusan:** `supabase/SETUP.sql` digenerate dari gabungan migrasi 0001–0011 dan dibuat **idempoten** (`create table/index/extension if not exists`, `drop policy if exists` sebelum `create policy`, seed dilewati bila `instansi` sudah terisi). Migrasi per-berkas tetap dipertahankan sebagai riwayat & untuk instalasi lama yang perlu naik bertahap. `APPLY_ALL.sql` lama dihapus.
+- **Alasan:** Pemasang baru cukup menjalankan satu berkas sekali; aman diulang bila ragu. Riwayat migrasi tetap ada untuk instalasi yang sudah berjalan.
+
 ### ADR-0022 — Author commit harus akun pemilik Vercel (ngluyo)
 - **Tanggal:** 2026-08-22
 - **Keputusan:** Semua commit di-author `ngluyo <ngluyo@gmail.com>`. Commit ber-author lain (mis. `metrologiktb`) **diblokir Vercel**: "commit author did not have contributing access... Hobby Plan does not support collaboration for private repositories".

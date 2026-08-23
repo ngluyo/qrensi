@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QRensi
 
-## Getting Started
+Aplikasi presensi berbasis **QR dinamis + verifikasi wajah**, dirancang agar
+sulit dititipkan namun tetap mudah dipakai dari HP mana pun.
 
-First, run the development server:
+Dibangun untuk berjalan sepenuhnya di **paket gratis** (Supabase + Vercel), dan
+dapat **direplikasi oleh organisasi mana pun** — pemerintah daerah, perusahaan,
+sekolah, atau yayasan — dengan identitas sendiri tanpa mengubah kode.
+
+## Cara kerja singkat
+
+1. Layar **kiosk** di kantor menampilkan QR yang berganti terus.
+2. Pegawai membuka aplikasi di HP → **verifikasi wajah** (diputuskan di server).
+3. Pegawai **memindai QR kiosk** → kehadiran tercatat.
+
+Karena QR harus dipindai dari jarak dekat, kehadiran fisik terbukti tanpa
+mengandalkan GPS — sehingga *fake GPS* tidak relevan. Token QR sekali pakai
+dengan klaim atomik, jadi tidak bisa dipakai dua orang.
+
+## Fitur
+
+**Pegawai** — absen 3 sesi harian, riwayat kalender dengan rincian per hari,
+rekap & estimasi potongan, pengajuan izin/sakit/cuti/dinas beserta lampiran,
+edit data pribadi & foto profil, notifikasi.
+
+**Admin** — dashboard kehadiran harian, kelola pegawai & akun, enrollment wajah,
+pengaturan pola & jam kerja, aturan potongan berjenjang, kelola kiosk,
+persetujuan izin, audit log, ekspor Google Sheets, cadangan Google Drive,
+laporan siap cetak, manajemen peran berjenjang (Super Admin / Admin unit).
+
+**Teknis** — PWA yang dapat dipasang di layar utama, tema terang/gelap,
+rate limiting, RLS, audit trail, deteksi *liveness* (kedip & menoleh).
+
+## Memulai
+
+📘 **[Panduan Instalasi lengkap →](docs/INSTALASI.md)**
+
+Ringkasnya:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/ngluyo/qrensi.git && cd qrensi && npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Buat project **Supabase**, jalankan `supabase/SETUP.sql` di SQL Editor
+2. Buat 4 bucket Storage: `avatar`, `sanggahan`, `branding`, `wajah` (private)
+3. Salin `.env.example` → `.env.local`, isi kunci Supabase
+4. Buat admin pertama:
+   ```bash
+   node scripts/buat-admin.mjs admin@organisasi.id "Nama Admin"
+   ```
+5. Jalankan:
+   ```bash
+   npm run dev
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Menyesuaikan identitas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Masuk sebagai Super Admin → **Panel Admin → Pengaturan Aplikasi** untuk mengubah
+nama aplikasi, nama organisasi, tagline, logo, warna, dan zona waktu. Perubahan
+langsung berlaku ke seluruh antarmuka termasuk nama & ikon PWA.
 
-## Learn More
+## Uji
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm test
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Dokumentasi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Berkas | Isi |
+|---|---|
+| [`docs/INSTALASI.md`](docs/INSTALASI.md) | Panduan pemasangan langkah demi langkah |
+| [`docs/PERAN.md`](docs/PERAN.md) | Peran pengguna & batas kewenangan |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Arsitektur teknis |
+| [`docs/PRD.md`](docs/PRD.md) | Spesifikasi produk |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | Sistem desain |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Catatan keputusan arsitektur |
 
-## Deploy on Vercel
+## Teknologi
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Next.js 16 · TypeScript · Tailwind CSS v4 · Supabase (Postgres, Auth, Storage) ·
+face-api.js · Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Catatan kepatuhan
+
+Data wajah termasuk **data pribadi bersifat spesifik** menurut UU No. 27/2022
+tentang Pelindungan Data Pribadi. Sebelum dipakai secara luas, pastikan ada
+persetujuan tertulis pegawai saat enrollment, mekanisme penghapusan data, dan
+jalur sanggahan yang ditangani manusia. Foto profil sengaja dipisahkan dari data
+biometrik agar pemakaiannya tidak melampaui tujuan yang disetujui.
