@@ -426,3 +426,23 @@
 **Blocker:** —
 
 **Next:** 6.5 APK Android via TWA/Bubblewrap (Android Studio sudah tersedia di perangkat user).
+
+---
+
+## Sesi #23 — 2026-08-23
+**Tujuan:** 6.5 APK Android (TWA) — item terakhir masterplan.
+
+**Yang dikerjakan:**
+- Endpoint dinamis `/.well-known/assetlinks.json` (route handler) yang membaca env
+  TWA_PACKAGE_NAME & TWA_SHA256_FINGERPRINT; mengembalikan array kosong (valid) bila belum
+  diisi sehingga tidak memecah apa pun. Mendukung banyak sidik jari (Play App Signing).
+- docs/ANDROID_APK.md: panduan lengkap — konsep TWA & alasan menolak Capacitor, jalur
+  Bubblewrap CLI (init/build/fingerprint), jalur PWABuilder tanpa CLI, menghubungkan
+  assetlinks, uji tanpa address bar, distribusi (langsung vs Play Store + Data Safety),
+  serta FAQ (tidak perlu rebuild APK tiap deploy, kamera jalan, iOS pakai Add to Home Screen).
+- .env.example + README diperbarui.
+- Build hijau; npm test 20/20; endpoint assetlinks diuji (mengembalikan []).
+
+**Status masterplan:** Tahap 1–6 SELESAI (6.4 uji beban ditunda atas keputusan user).
+
+**Next:** menunggu user membangun APK bila diinginkan; sisanya pemeliharaan & umpan balik uji lapangan.

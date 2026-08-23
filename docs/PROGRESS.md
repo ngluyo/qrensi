@@ -7,7 +7,7 @@
 
 ## Status Global
 **Mode:** Restrukturisasi terarah (ADR-0019) — fondasi dipertahankan, lapisan aplikasi dirombak.
-**Tahap aktif:** **Tahap 5–6 (sisa)** — Tahap 1–4 selesai; 5.1, 6.2, 6.3 selesai
+**Tahap aktif:** **SELESAI** — Tahap 1–6 tuntas (6.4 uji beban ditunda atas keputusan user)
 **Produksi:** `qrensi.vercel.app` (tertinggal di commit `8f93ba0`)
 
 > ✅ Blokir push & deploy **teratasi**: kredensial GitHub diperbarui user; author commit
@@ -78,7 +78,8 @@
 - ☑ 6.2 Security headers (nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy `camera=(self)`, no-cache `/sw.js`) — **terverifikasi**
 - ☑ 6.3 Halaman 404/error kustom
 - ⏸ 6.4 Uji beban — ditunda (keputusan user; skala pilot)
-- ☐ 6.5 TWA/Bubblewrap → APK Android
+- ☑ 6.5 TWA/APK: endpoint `/.well-known/assetlinks.json` dinamis (env TWA_*) + docs/ANDROID_APK.md
+  (langkah Bubblewrap & PWABuilder, Play App Signing, distribusi). Build APK dijalankan user.
 - ☑ 6.6 Dokumen serah terima: PANDUAN_ADMIN, PANDUAN_PEGAWAI, RUNBOOK, INSTALASI
 
 ---
