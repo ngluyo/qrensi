@@ -1,0 +1,43 @@
+{
+  "packageId": "id.qrensi.twa",
+  "host": "qrensi.vercel.app",
+  "name": "QRensi",
+  "launcherName": "QRensi",
+  "display": "standalone",
+  "themeColor": "#155e9c",
+  "themeColorDark": "#155e9c",
+  "navigationColor": "#155e9c",
+  "navigationColorDark": "#155e9c",
+  "navigationDividerColor": "#155e9c",
+  "navigationDividerColorDark": "#155e9c",
+  "backgroundColor": "#0F172A",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://qrensi.vercel.app/icons/icon-512.png",
+  "maskableIconUrl": "https://qrensi.vercel.app/icons/icon-maskable.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "C:\\Users\\waluh/qrensi-android/android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://qrensi.vercel.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://qrensi.vercel.app/",
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "appVersion": "1.0.0"
+}
