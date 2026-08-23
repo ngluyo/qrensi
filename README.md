@@ -44,14 +44,13 @@ git clone https://github.com/ngluyo/qrensi.git && cd qrensi && npm install
 1. Buat project **Supabase**, jalankan `supabase/SETUP.sql` di SQL Editor
 2. Buat 4 bucket Storage: `avatar`, `sanggahan`, `branding`, `wajah` (private)
 3. Salin `.env.example` → `.env.local`, isi kunci Supabase
-4. Buat admin pertama:
-   ```bash
-   node scripts/buat-admin.mjs admin@organisasi.id "Nama Admin"
-   ```
-5. Jalankan:
+4. Jalankan aplikasi:
    ```bash
    npm run dev
    ```
+5. Buka `http://localhost:3000` — Anda akan diarahkan ke **halaman setup** untuk
+   membuat administrator pertama lewat browser
+   *(alternatif baris perintah: `node scripts/buat-admin.mjs admin@organisasi.id "Nama Admin"`)*
 
 ## Menyesuaikan identitas
 
@@ -70,6 +69,7 @@ npm test
 | Berkas | Isi |
 |---|---|
 | [`docs/INSTALASI.md`](docs/INSTALASI.md) | Panduan pemasangan langkah demi langkah |
+| [`docs/SETUP_WIZARD.md`](docs/SETUP_WIZARD.md) | Halaman setup web (admin pertama tanpa terminal) |
 | [`docs/PANDUAN_ADMIN.md`](docs/PANDUAN_ADMIN.md) | Panduan untuk petugas kepegawaian |
 | [`docs/PANDUAN_PEGAWAI.md`](docs/PANDUAN_PEGAWAI.md) | Panduan untuk pegawai (pengguna akhir) |
 | [`docs/RUNBOOK.md`](docs/RUNBOOK.md) | Operasional: pemeriksaan rutin & pemulihan masalah |

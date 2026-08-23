@@ -107,7 +107,9 @@ Skema DB & migrasi 0001–0007 · klaim token atomik (1-dari-2) · rotasi QR · 
   deteksi duplikat (NIP/nama), pemetaan unit & pola dari nama, opsi buat akun massal,
   parser tahan Excel Indonesia (pemisah `;`), BOM, koma dalam kutip. Uji: 9/9 lulus (total 29/29).
 - ☑ Template CSV: tombol unduh di UI + berkas contoh `contoh/template-impor-pegawai.csv`
-- ☐ Halaman setup web (buat admin pertama tanpa terminal) — usulan berikutnya
+- ☑ **Halaman setup web** `/setup` — buat admin pertama + identitas organisasi lewat browser,
+  tanpa terminal. Aktif hanya bila belum ada Super Admin (dicek di server), tertutup permanen
+  setelahnya. Landing & login otomatis mengalihkan ke sini pada instalasi baru. Doc: SETUP_WIZARD.md
 
 ## Menunggu User
 - ☑ Migrasi 0011 sudah dijalankan — white-label aktif & terverifikasi.

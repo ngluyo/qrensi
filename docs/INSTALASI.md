@@ -170,14 +170,20 @@ Boleh dikosongkan dulu; aplikasi tetap jalan.
 
 ## 5. Membuat akun admin pertama
 
-Karena tidak ada pendaftaran mandiri, akun Super Admin pertama dibuat lewat skrip:
+**Cara mudah (disarankan):** jalankan aplikasi dulu (langkah 6), lalu buka
+alamatnya di browser. Karena belum ada admin, Anda otomatis diarahkan ke
+**halaman setup** untuk mengisi identitas organisasi dan membuat akun
+administrator — tanpa perlu terminal. Rinciannya di
+[`SETUP_WIZARD.md`](SETUP_WIZARD.md).
+
+**Alternatif lewat terminal:**
 
 ```bash
 node scripts/buat-admin.mjs admin@organisasi.go.id "Nama Lengkap Admin"
 ```
 
-Skrip akan menampilkan **kata sandi sementara** — simpan. Saat login pertama,
-sistem otomatis meminta Anda menggantinya.
+Skrip menampilkan **kata sandi sementara** — simpan. Saat login pertama, sistem
+otomatis meminta Anda menggantinya.
 
 ---
 

@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { ScanFace, ShieldCheck, MonitorSmartphone, ChevronRight } from "lucide-react";
+import { redirect } from "next/navigation";
 import { getPengaturan, getLogoUrl } from "@/lib/pengaturan";
+import { butuhSetup } from "@/lib/setup";
 
 export default async function Home() {
+  // Instalasi baru (belum ada admin) → arahkan ke wizard setup.
+  if (await butuhSetup()) redirect("/setup");
+
   const p = await getPengaturan();
   const logoUrl = await getLogoUrl(p.logoPath);
 
